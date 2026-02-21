@@ -1,13 +1,11 @@
 # Dependencies
 node_modules/
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
+jspm_packages/
 
 # Environment variables
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
 
 # Logs
 logs/
@@ -15,6 +13,7 @@ logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+lerna-debug.log*
 
 # Generated outputs
 server/outputs/
@@ -31,6 +30,7 @@ Thumbs.db
 
 # IDE
 .vscode/
+.vscode-test
 .idea/
 *.swp
 *.swo
@@ -38,8 +38,23 @@ Thumbs.db
 
 # Testing
 coverage/
+*.lcov
 .nyc_output/
 
 # Build artifacts
 dist/
 build/
+build/Release
+
+# Cache
+.npm
+.eslintcache
+.stylelintcache
+.cache
+.parcel-cache
+
+# Misc
+*.tgz
+*.tsbuildinfo
+.yarn-integrity
+.pnp.*
