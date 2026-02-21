@@ -554,6 +554,7 @@
               <label for="key">Key Signature</label>
               <select id="key" name="key" required>
                 <option value="">Select a key…</option>
+                <option value="surprise">🎲 Surprise me</option>
                 <optgroup label="Major Keys">
                   <option value="C major">C Major</option>
                   <option value="G major">G Major</option>
@@ -736,8 +737,19 @@
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
+      const allKeys = [
+        'C major','G major','D major','A major','E major','B major','F major',
+        'Bb major','Eb major','Ab major','Db major','Gb major',
+        'A minor','E minor','B minor','F# minor','C# minor','G# minor',
+        'D minor','G minor','C minor','F minor','Bb minor','Eb minor'
+      ];
+      const selectedKey = document.getElementById('key').value;
+      const resolvedKey = selectedKey === 'surprise'
+        ? allKeys[Math.floor(Math.random() * allKeys.length)]
+        : selectedKey;
+
       const formData = {
-        key: document.getElementById('key').value,
+        key: resolvedKey,
         bars: parseInt(document.getElementById('bars').value),
         difficulty: document.getElementById('difficulty').value,
         prompt: document.getElementById('prompt').value.trim() || undefined,
