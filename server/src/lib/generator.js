@@ -187,7 +187,7 @@ export function getModeFlags(params) {
   // Jazz detection
   let jazz = false;
   if (style && style.toLowerCase() === 'jazz-tinged') jazz = true;
-  if (inspiredBy && ['gershwin', 'glass'].includes(inspiredBy.toLowerCase())) jazz = true;
+  if (inspiredBy && inspiredBy.toLowerCase() === 'gershwin') jazz = true;
   if (prompt) {
     const lower = prompt.toLowerCase();
     const jazzKeywords = [
@@ -205,20 +205,82 @@ export function getModeFlags(params) {
     const lower = prompt.toLowerCase();
     const impressionistKeywords = [
       'impressionist', 'debussy', 'ravel', 'clair de lune', 'claire de lune',
-      'whole tone', 'impressionism', 'arabesques', 'nocturne', 'reverie', 'rêverie'
+      'whole tone', 'impressionism', 'arabesques', 'reverie', 'rêverie', 'nocturne'
     ];
     if (impressionistKeywords.some(k => lower.includes(k))) impressionist = true;
   }
 
+  // Classical detection (Mozart, Haydn)
+  let classical = false;
+  if (style && style.toLowerCase() === 'classical') classical = true;
+  if (inspiredBy && inspiredBy.toLowerCase() === 'mozart') classical = true;
+  if (prompt) {
+    const lower = prompt.toLowerCase();
+    const classicalKeywords = [
+      'mozart', 'haydn', 'classical', 'alberti', 'sonata', 'sonatina',
+      'minuet and trio', 'rondo', 'periodic', 'galant'
+    ];
+    if (classicalKeywords.some(k => lower.includes(k))) classical = true;
+  }
+
+  // Romantic detection (Chopin, Schubert, Schumann)
+  let romantic = false;
+  if (style && style.toLowerCase() === 'romantic') romantic = true;
+  if (inspiredBy && inspiredBy.toLowerCase() === 'chopin') romantic = true;
+  if (prompt) {
+    const lower = prompt.toLowerCase();
+    const romanticKeywords = [
+      'chopin', 'romantic', 'cantabile', 'lyrical', 'nocturne style',
+      'schubert', 'schumann', 'liszt', 'singing melody', 'expressive rubato'
+    ];
+    if (romanticKeywords.some(k => lower.includes(k))) romantic = true;
+  }
+
+  // Minimal detection (Glass, ambient, minimalist)
+  let minimal = false;
+  if (style && style.toLowerCase() === 'minimal') minimal = true;
+  if (inspiredBy && inspiredBy.toLowerCase() === 'glass') minimal = true;
+  if (prompt) {
+    const lower = prompt.toLowerCase();
+    const minimalKeywords = [
+      'glass', 'minimal', 'minimalist', 'ambient', 'ostinato', 'repetit',
+      'hypnotic', 'drone', 'meditative', 'arvo pärt', 'part', 'satie'
+    ];
+    if (minimalKeywords.some(k => lower.includes(k))) minimal = true;
+  }
+
+  // Cinematic detection (Zimmer, film score)
+  let cinematic = false;
+  if (style && style.toLowerCase() === 'cinematic') cinematic = true;
+  if (inspiredBy && inspiredBy.toLowerCase() === 'zimmer') cinematic = true;
+  if (prompt) {
+    const lower = prompt.toLowerCase();
+    const cinematicKeywords = [
+      'zimmer', 'cinematic', 'film score', 'soundtrack', 'epic', 'cinematic build',
+      'nils frahm', 'ludovico', 'yann tiersen', 'movie music', 'trailer'
+    ];
+    if (cinematicKeywords.some(k => lower.includes(k))) cinematic = true;
+  }
+
   // Baroque takes priority over everything
-  if (baroque) { jazz = false; impressionist = false; }
+  if (baroque) { jazz = false; impressionist = false; classical = false; romantic = false; minimal = false; cinematic = false; }
+  // Prevent style conflicts (first detected wins after baroque)
+  if (jazz) { impressionist = false; classical = false; romantic = false; minimal = false; cinematic = false; }
+  if (impressionist) { classical = false; romantic = false; minimal = false; cinematic = false; }
+  if (classical) { romantic = false; minimal = false; cinematic = false; }
+  if (romantic) { minimal = false; cinematic = false; }
+  if (minimal) { cinematic = false; }
 
   return {
     baroque,
     jazz,
     impressionist,
-    organicTime: !baroque && !jazz && !impressionist,
-    antiEtude: !baroque && !jazz && !impressionist
+    classical,
+    romantic,
+    minimal,
+    cinematic,
+    organicTime: !baroque && !jazz && !impressionist && !classical && !romantic && !minimal && !cinematic,
+    antiEtude: !baroque && !jazz && !impressionist && !classical && !romantic && !minimal && !cinematic
   };
 }
 
@@ -231,6 +293,10 @@ function getBehavioralOverlay(params) {
   if (modeFlags.baroque) return BAROQUE_COMPOSE_INSTRUCTIONS;
   if (modeFlags.jazz) return JAZZ_COMPOSE_INSTRUCTIONS;
   if (modeFlags.impressionist) return IMPRESSIONIST_COMPOSE_INSTRUCTIONS;
+  if (modeFlags.classical) return CLASSICAL_COMPOSE_INSTRUCTIONS;
+  if (modeFlags.romantic) return ROMANTIC_COMPOSE_INSTRUCTIONS;
+  if (modeFlags.minimal) return MINIMAL_COMPOSE_INSTRUCTIONS;
+  if (modeFlags.cinematic) return CINEMATIC_COMPOSE_INSTRUCTIONS;
   return DEFAULT_COMPOSE_INSTRUCTIONS;
 }
 
@@ -242,6 +308,10 @@ function getPlanBehavioralOverlay(params) {
   if (modeFlags.baroque) return BAROQUE_PLAN_INSTRUCTIONS;
   if (modeFlags.jazz) return JAZZ_PLAN_INSTRUCTIONS;
   if (modeFlags.impressionist) return IMPRESSIONIST_PLAN_INSTRUCTIONS;
+  if (modeFlags.classical) return CLASSICAL_PLAN_INSTRUCTIONS;
+  if (modeFlags.romantic) return ROMANTIC_PLAN_INSTRUCTIONS;
+  if (modeFlags.minimal) return MINIMAL_PLAN_INSTRUCTIONS;
+  if (modeFlags.cinematic) return CINEMATIC_PLAN_INSTRUCTIONS;
   return DEFAULT_PLAN_INSTRUCTIONS;
 }
 
@@ -260,7 +330,15 @@ function getComposeSystemPrompt(params) {
       ? '% use a steady swing or groove tempo: Swing, With groove, Funky, etc. — NO rubato, NO fermatas'
       : modeFlags.impressionist
         ? '% use floating atmospheric markings: "Très doux", "Flottant", "Senza misura", "Sospeso", "Doucement" — NO metronomic markings'
-        : '% use expressive tempo markings (rubato, poco allargando, etc.)';
+        : modeFlags.classical
+          ? '% use a clear moderate tempo: Andante, Allegretto, Moderato, Con moto — NO rubato, NO fermatas except final cadence'
+          : modeFlags.romantic
+            ? '% use expressive cantabile markings: rubato, con espressione, cantabile, con moto — time breathes with the melody'
+            : modeFlags.minimal
+              ? '% use a clear steady tempo: Andante, Moderato, or numeric (e.g., quarter=80) — NO rubato, NO fermatas'
+              : modeFlags.cinematic
+                ? '% use a steady moderate tempo: Andante, Moderato, or numeric (e.g., quarter=76) — NO rubato, builds through texture not tempo'
+                : '% use expressive tempo markings (rubato, poco allargando, etc.)';
 
   return `You are an expert LilyPond engraver and composer. You have received a composer's impressionistic brief — NOT a detailed plan.
 Your job is to compose and engrave a finished piano prelude that embodies the brief's tendencies and emotional stance.
@@ -614,6 +692,324 @@ Role: You are writing an impressionist piano piece in the style of Debussy — s
 ANCHOR: The piece should feel like light on water — the LH is the water (always moving), the RH is the light (floating above). If it sounds dry, fragmented, or classical, it is wrong.
 
 --- END IMPRESSIONIST INSTRUCTIONS ---`;
+
+const CLASSICAL_PLAN_INSTRUCTIONS = `--- CLASSICAL BEHAVIORAL PHILOSOPHY ---
+
+Role: You are composing in the style of Mozart or Haydn — music of wit, balance, and periodic grace. NOT a romantic outpouring, NOT an impressionist blur.
+
+1. PHRASING IS PERIODIC
+- Structure in clear 4+4 bar phrases. Phrase endings must be audible.
+- Plan one disruption: a truncated phrase, an extra bar, or an overlapping entry — no more.
+- Symmetry is a virtue here, not an enemy.
+
+2. TEXTURE IS STRATIFIED
+- Right hand carries the melody. Left hand provides harmonic support.
+- LH choices: Alberti bass (broken chord triplet), quarter-note harmonic rhythm (2 beats per chord), or simple repeated chords.
+- The two hands have clear, non-competing roles.
+
+3. HARMONY IS TRANSPARENT
+- Use I-IV-V-I cadential plans. State the harmonic rhythm clearly.
+- One applied dominant (V/V or V/IV) is allowed. No more.
+- Avoid chromatic passing tones. Avoid deceptive cadences as structural points.
+
+4. TEMPO IS MODERATE AND STEADY
+- Choose a clear character tempo: Andante, Allegretto, Moderato.
+- No rubato, no fermatas except at the final cadence.
+- The pulse is the piece.
+
+5. AVOID
+- Constant running 16th-note figuration in both hands
+- Chromatic voice-leading
+- Dense, heavy textures
+- Romantic or impressionist expressive markings
+
+--- END CLASSICAL PHILOSOPHY ---`;
+
+const CLASSICAL_COMPOSE_INSTRUCTIONS = `--- PRELUDE: CLASSICAL BEHAVIORAL INSTRUCTIONS ---
+
+Role: You are writing a classical piano piece in the style of Mozart or early Haydn — clear, witty, balanced, and graceful. NOT romantic, NOT impressionist.
+
+1. PHRASING (mandatory)
+- Write in clear 4+4 bar phrases. Every phrase should have an audible beginning and ending.
+- Plan one disruption across the whole piece: a truncated phrase (3 bars instead of 4), an extra bar inserted, or overlapping entries.
+- DO NOT disrupt every phrase. Regularity is a feature.
+
+2. TEXTURE (mandatory)
+- Right hand: melody — singing, stepwise, with occasional leaps of a 3rd or 6th.
+- Left hand: harmonic support. Choose one of:
+  a) Alberti bass: low note, mid chord, high chord repeated (um-pah-pah feel)
+  b) Two-beat harmonic rhythm: root on beat 1, chord on beat 3
+  c) Simple quarter-note chord pulses
+- The LH must NOT have independent melodic lines. It supports.
+
+3. HARMONY
+- Plan a clear I-IV-V-I cadence structure. Cadences at phrase endings.
+- One applied dominant allowed (e.g., V/V before the dominant arrival).
+- Avoid chromatic passing tones. Avoid augmented 6th chords.
+- Tonic-dominant polarity drives the piece.
+
+4. TEMPO AND CHARACTER
+- Use a clear, moderate tempo marking: Andante, Allegretto, Moderato, Con moto.
+- The tempo must remain steady throughout.
+- NO rubato, NO senza rigidità, NO fermatas except at the final cadence.
+- Dynamic markings: p and f contrasts at phrase endings (echo dynamics).
+
+5. ARTICULATION AND DYNAMICS
+- Use slurs over melodic phrases (2-4 bar spans).
+- Staccato on repeated notes and cadential figures.
+- Echo dynamic contrasts: f answered by p on repeats.
+
+6. FORBIDDEN IN CLASSICAL MODE
+- Rubato, senza rigidità, or any tempo flexibility markings
+- Continuous 16th-note figuration in both hands simultaneously
+- Chromatic voice-leading or romantic harmony
+- Independent melodic material in the LH
+- Dense or heavy textures
+- Fermatas except at the very final cadence
+
+ANCHOR: The piece should feel like a well-reasoned argument — each phrase completes a thought. If it sounds like Chopin or Debussy, it is wrong.
+
+--- END CLASSICAL INSTRUCTIONS ---`;
+
+const ROMANTIC_PLAN_INSTRUCTIONS = `--- ROMANTIC BEHAVIORAL PHILOSOPHY ---
+
+Role: You are composing in the style of Chopin — music of lyrical expression, delayed resolution, and singing melody. NOT classical balance, NOT impressionist color.
+
+1. MELODY IS THE SOUL
+- Right hand carries a long, arching, cantabile melody.
+- The melody should rise, peak, and descend across each phrase.
+- Melody should resist its cadence — delay, extend, ache before resolving.
+
+2. LEFT HAND IS ACCOMPANIMENT
+- LH provides a flowing broken-chord or arpeggiated accompaniment.
+- Wide-spanning LH gestures (reaching a 10th or more) create the characteristic "Chopin wash."
+- LH moves continuously but never competes with the RH melody.
+
+3. HARMONY IS EXPRESSIVE
+- Use one deceptive cadence (V-vi instead of V-I) as a structural surprise.
+- Chromatic approach to the dominant (chromatically raised 4th scale degree, etc.)
+- Harmony is functional but inflected — not impressionist drift.
+
+4. RUBATO IS STRUCTURAL
+- Time should breathe with the melody — not mechanical.
+- Phrase endings stretch; phrase beginnings hesitate.
+- Rubato serves emotional expression, not temporal ambiguity.
+
+5. AVOID
+- Stiff, metronomic phrasing
+- Alberti bass or simple harmonic rhythm in LH (too classical)
+- Surface chromaticism without expressive purpose
+- Even phrase lengths throughout
+
+--- END ROMANTIC PHILOSOPHY ---`;
+
+const ROMANTIC_COMPOSE_INSTRUCTIONS = `--- PRELUDE: ROMANTIC BEHAVIORAL INSTRUCTIONS ---
+
+Role: You are writing a romantic piano piece in the style of Chopin — lyrical, expressive, with a singing RH melody over LH arpeggiated accompaniment. NOT classical, NOT impressionist.
+
+1. RIGHT HAND = SINGING MELODY (mandatory)
+- RH carries a long, legato, cantabile melodic line.
+- Use quarter notes, dotted rhythms, and tied notes to create a singing arc.
+- The melody should have a clear rise (tension) and fall (release) over each phrase.
+- Avoid scalar runs as primary melody. The melody should feel vocal, not pianistic.
+
+2. LEFT HAND = ARPEGGIATED ACCOMPANIMENT (mandatory)
+- LH plays broken chord accompaniment patterns — NOT Alberti bass, NOT a walking bass.
+- Wide-spanning gestures reaching an octave or more (bass note + spread chord above).
+- Pattern: bass note on beat 1, then broken chord rising through the bar.
+- LH moves continuously but always subordinate to the RH melody.
+- The LH may briefly rest at a melodic peak to let the melody speak alone.
+
+3. PHRASE SHAPE (mandatory)
+- Each 4-bar phrase should have a melodic arc: ascent then descent.
+- Extend one phrase by 2 bars via a melodic sequence.
+- Use silence (half-bar rest in LH at melodic peak) to intensify the melody.
+
+4. HARMONY
+- Functional I-IV-V-I backbone with expressive color.
+- Include one deceptive cadence (V to vi) as a structural surprise.
+- Use chromatic approach notes to the dominant (raised 4th scale degree).
+- Avoid plain diatonic harmony throughout — at least one chromatic inflection per phrase.
+
+5. TEMPO AND RUBATO
+- Use expressive tempo markings: rubato, con espressione, cantabile, con moto.
+- Time should breathe with the melody: phrase endings stretch, beginnings hesitate.
+- The piece must feel emotionally alive, not metronomic.
+
+6. DYNAMICS
+- Shape dynamics with the melody: crescendo to the phrase peak, decrescendo away.
+- Use pp and p for introspective passages, mf-f at climax.
+- The ending should fade — pp or ppp, not a strong cadential statement.
+
+7. FORBIDDEN IN ROMANTIC MODE
+- Alberti bass or simple repeated chords in LH
+- Stiff, metronomic phrasing
+- Steady unwavering pulse throughout (the time must breathe)
+- Both hands running simultaneously in 16th-note figuration
+- Ending with a forte cadence (Chopin nocturnes end softly)
+- LH competing with RH for melodic attention
+
+ANCHOR: Close your eyes and sing the right hand. If it sings, the piece is working. The LH should feel like a cushion of sound beneath the singing line. If it sounds classical or impressionist, it is wrong.
+
+--- END ROMANTIC INSTRUCTIONS ---`;
+
+const MINIMAL_PLAN_INSTRUCTIONS = `--- MINIMAL/AMBIENT BEHAVIORAL PHILOSOPHY ---
+
+Role: You are composing in the style of Philip Glass or ambient minimalism — music of hypnotic repetition, gradual change, and stillness. NOT jazz, NOT classical.
+
+1. ONE HAND = OSTINATO ENGINE
+- One hand (usually LH) maintains a repeating rhythmic-melodic cell throughout.
+- The cell uses 3-5 pitches. It repeats with minimal variation.
+- The ostinato IS the piece — it should feel hypnotic, not busy.
+
+2. OTHER HAND = SLOW MELODY
+- The other hand (usually RH) adds sparse, slow melodic notes above.
+- At least one new pitch every 4 bars.
+- Long tones, not scalar lines or ornamental figures.
+
+3. HARMONY CHANGES SLOWLY
+- One chord change every 6-8 bars minimum. No rapid harmonic rhythm.
+- No sudden modulations. Harmony should drift, not pivot.
+- Avoid functional I-IV-V-I. Modal or drone-like harmonic language.
+
+4. PULSE IS UNWAVERING
+- Minimal music has a clear, steady pulse — like a clock.
+- No rubato, no fermatas, no tempo changes (except a final slowing at the very end).
+- The pulse is what makes the gradual change audible.
+
+5. AVOID
+- Dramatic climax or sudden forte
+- Dense, busy textures
+- Rapid harmonic rhythm
+- Scalar runs or melodic development
+
+--- END MINIMAL PHILOSOPHY ---`;
+
+const MINIMAL_COMPOSE_INSTRUCTIONS = `--- PRELUDE: MINIMAL/AMBIENT BEHAVIORAL INSTRUCTIONS ---
+
+Role: You are writing a minimalist piano piece in the style of Philip Glass — hypnotic, repetitive, gradually shifting. NOT jazz, NOT classical, NOT impressionist.
+
+1. LEFT HAND = REPEATING OSTINATO (mandatory)
+- LH plays a repeating rhythmic-melodic cell using 3-5 distinct pitches.
+- The pattern repeats EVERY bar (or every 2 bars) throughout the piece.
+- Variation should be minimal: slight register shift, one pitch swapped — not a new pattern.
+- The LH ostinato must never stop for more than 1 bar.
+
+2. RIGHT HAND = SPARSE SLOW MELODY (mandatory)
+- RH adds slow, widely-spaced melodic notes above the LH ostinato.
+- Long note values: half notes, dotted half notes, whole notes.
+- At least one new RH pitch every 4 bars. No rapid melodic figuration.
+- The RH melody drifts slowly — it does NOT develop, vary rhythmically, or ornament.
+
+3. TOGETHER: 5+ PITCH CLASSES (mandatory)
+- Both hands combined must use at least 5 distinct pitch classes.
+- Do not restrict the whole piece to 2-3 pitches.
+
+4. HARMONY CHANGES SLOWLY
+- Change the underlying harmony (implied by LH pitches) no more than once every 6-8 bars.
+- No sudden modulations. No functional cadences.
+- Let the harmony shift almost imperceptibly — the listener should notice it has changed, not when.
+
+5. PULSE IS STEADY AND UNWAVERING
+- Use a clear, moderate tempo: Andante, Moderato, or a numeric tempo like ♩= 80.
+- NO rubato, NO fermatas, NO tempo changes mid-piece.
+- The steady pulse makes the gradual drift audible. Without it, minimal music collapses.
+
+6. ARC: GRADUAL AND SUBTLE
+- No dramatic climax. No sudden forte or texture explosion.
+- The piece may gradually thicken (add one voice, shift register upward) and then thin again.
+- The ending may slow very slightly (poco ritardando) but should not announce itself.
+
+7. FORBIDDEN IN MINIMAL MODE
+- Dramatic dynamic surges (sudden ff or fff)
+- Rapid harmonic rhythm (chord changes every 1-2 bars)
+- Scalar runs or melodic development in either hand
+- Rubato, senza rigidità, or expressive tempo markings
+- Both hands playing completely different, unrelated material
+- Fermatas before the final note
+
+ANCHOR: The piece should feel like watching a slow tide — the water moves, but the change is almost imperceptible. If it sounds like jazz or classical, it is wrong.
+
+--- END MINIMAL INSTRUCTIONS ---`;
+
+const CINEMATIC_PLAN_INSTRUCTIONS = `--- CINEMATIC BEHAVIORAL PHILOSOPHY ---
+
+Role: You are composing in the style of Hans Zimmer — modern cinematic piano music with a clear emotional arc from sparse to full. NOT classical, NOT impressionist.
+
+1. THE PIECE IS AN ARC
+- Begin sparse: single notes, wide spacing, space between events.
+- Build gradually: add texture, double notes, widen register.
+- Climax: full octave doubling, both hands engaged, peak dynamic.
+- Return to sparse or end on a single sustained note.
+- The arc is the piece. Every bar should know where it is in the journey.
+
+2. TEXTURE IS ARCHITECTURE
+- Opening: single notes or 2-note intervals in RH, minimal LH.
+- Middle: simple broken chord patterns in LH, fuller RH melody.
+- Climax: RH octave doubling, both hands in octave unison or thick chords.
+
+3. HARMONY IS MODAL
+- Use Aeolian, Dorian, or Mixolydian modes — not classical major/minor.
+- bVII and bVI chords as color. Avoid the leading tone.
+- Authentic cadence (V-I or v-i) only at the very end.
+
+4. PULSE IS STEADY AND BUILDING
+- Steady pulse throughout. The momentum builds through texture, not tempo.
+- No rubato, no expressive tempo markings. The piece drives forward.
+
+5. AVOID
+- Classical periodic phrasing (4+4 bars with cadences)
+- Functional harmony (ii-V-I)
+- Imitative counterpoint
+- Impressionist texture (continuous LH arpeggios)
+
+--- END CINEMATIC PHILOSOPHY ---`;
+
+const CINEMATIC_COMPOSE_INSTRUCTIONS = `--- PRELUDE: CINEMATIC BEHAVIORAL INSTRUCTIONS ---
+
+Role: You are writing a modern cinematic piano piece in the style of Hans Zimmer — building from sparse to full, with a single emotional trajectory. NOT classical, NOT jazz, NOT impressionist.
+
+1. STRUCTURE = ARC (mandatory)
+The piece must follow this trajectory:
+- Bars 1-4: SPARSE — single notes or 2-note intervals in RH. LH minimal (long held notes or nothing).
+- Bars 5-12: BUILDING — LH begins simple repeated pattern (quarter-note pulse or 2-note ostinato). RH develops a melodic line.
+- Bars 13-18: CLIMAX — RH in octaves. LH full chords or octave bass. Both hands at peak register and dynamic.
+- Bars 19-end: RETURN — texture thins back to sparse. End on a single note, octave, or sustained chord, ppp.
+
+2. TEXTURE BUILDS THROUGH DOUBLING (mandatory)
+- Sparse opening: RH single notes. LH one note per bar or silent.
+- Building: RH simple melody. LH adds quarter-note pulse (same pitch class as harmony).
+- Climax: RH doubles at the octave. LH full, strong bass + chord or octave.
+- The increase in density should feel inevitable, not sudden.
+
+3. HARMONY IS MODAL
+- Choose a mode: Aeolian (natural minor), Dorian, or Mixolydian.
+- Use bVII and bVI chords as your primary color chords.
+- Avoid the leading tone (raised 7th). Avoid dominant 7th chords before the final cadence.
+- The final cadence (last 2 bars) is the ONE moment of harmonic arrival: V to I (or v to i).
+
+4. MELODY IS INTERVALLIC
+- The main melodic motif uses a perfect 4th or perfect 5th as its opening interval.
+- The melody repeats and gradually rises in register as the piece builds.
+- No ornamental figuration, no scalar runs as primary material.
+
+5. TEMPO AND DYNAMICS
+- Use a steady, moderate tempo: Andante, Moderato, or ♩= 72-88.
+- NO rubato, NO expressive tempo markings. The piece moves forward steadily.
+- Dynamic arc: pp (sparse) → mp (building) → f/ff (climax) → pp (return).
+- Mark dynamics explicitly at each section change.
+
+6. FORBIDDEN IN CINEMATIC MODE
+- Classical periodic phrasing or cadences before the final bar
+- Functional ii-V-I harmony (too jazz/classical)
+- Impressionist LH arpeggios throughout (wrong texture)
+- Rubato or senza rigidità tempo markings
+- Staccato or dry articulation
+- Remaining at one dynamic level throughout
+
+ANCHOR: The piece tells one story — departure and arrival. If someone cannot sense the arc from quiet to full to quiet again, something is wrong. If it sounds like Mozart or Chopin, it is wrong.
+
+--- END CINEMATIC INSTRUCTIONS ---`;
 
 const DEFAULT_PLAN_INSTRUCTIONS = `--- CORE COMPOSITION PHILOSOPHY ---
 
@@ -1156,7 +1552,7 @@ async function generateLilyPondFromPlan(plan, params, conversationHistory = [], 
  */
 async function refineLilyPond(lilypondCode, plan, params, costTracking) {
   const modeFlags = getModeFlags(params);
-  const modeName = modeFlags.baroque ? 'Baroque mode' : modeFlags.jazz ? 'Jazz mode' : modeFlags.impressionist ? 'Impressionist mode' : 'Organic Time / Anti-Étude mode';
+  const modeName = modeFlags.baroque ? 'Baroque mode' : modeFlags.jazz ? 'Jazz mode' : modeFlags.impressionist ? 'Impressionist mode' : modeFlags.classical ? 'Classical mode' : modeFlags.romantic ? 'Romantic mode' : modeFlags.minimal ? 'Minimal mode' : modeFlags.cinematic ? 'Cinematic mode' : 'Organic Time / Anti-Étude mode';
 
   // Use the SAME behavioral overlay as initial generation
   const systemPrompt = getComposeSystemPrompt(params) + `
@@ -1416,7 +1812,7 @@ export async function generateWithRepair(params, progressCallback) {
         try {
           checkAPICallLimit(costTracking);
 
-          const activeMode = modeFlags.baroque ? 'Baroque mode' : modeFlags.jazz ? 'Jazz mode' : modeFlags.impressionist ? 'Impressionist mode' : 'Organic Time / Anti-Étude mode';
+          const activeMode = modeFlags.baroque ? 'Baroque mode' : modeFlags.jazz ? 'Jazz mode' : modeFlags.impressionist ? 'Impressionist mode' : modeFlags.classical ? 'Classical mode' : modeFlags.romantic ? 'Romantic mode' : modeFlags.minimal ? 'Minimal mode' : modeFlags.cinematic ? 'Cinematic mode' : 'Organic Time / Anti-Étude mode';
           const fixPrompt = `The compiled LilyPond has static-pattern issues:\n${staticIssues.join('\n')}\n\nFix ONLY these issues:\n- Vary the left hand so no 3+ consecutive bars are identical\n- Introduce registral shifts, rhythmic variation, or harmonic change in flagged passages\n- Keep the overall structure, key, and bar count the same\n- Preserve the stylistic/behavioral constraints (${activeMode}). Only fix the flagged passages — do NOT rewrite the piece or drift toward exercise phrasing.\n- Output ONLY the complete corrected LilyPond code.`;
 
           const fixHistory = [
@@ -1587,7 +1983,7 @@ export async function generateWithRepair(params, progressCallback) {
       }
 
       // REPAIR PROMPT — preserves behavioral constraints
-      const activeMode = modeFlags.baroque ? 'Baroque mode' : modeFlags.jazz ? 'Jazz mode' : modeFlags.impressionist ? 'Impressionist mode' : 'Organic Time / Anti-Étude mode';
+      const activeMode = modeFlags.baroque ? 'Baroque mode' : modeFlags.jazz ? 'Jazz mode' : modeFlags.impressionist ? 'Impressionist mode' : modeFlags.classical ? 'Classical mode' : modeFlags.romantic ? 'Romantic mode' : modeFlags.minimal ? 'Minimal mode' : modeFlags.cinematic ? 'Cinematic mode' : 'Organic Time / Anti-Étude mode';
       const repairPrompt = `You are fixing LilyPond compilation errors.
 
 Task:

@@ -107,11 +107,11 @@ export const COMPOSER_INSPIRATIONS = {
   },
   mozart: {
     name: 'W.A. Mozart',
-    hint: 'Phrase in multiples of 2, disrupt once near the end. Never write a 5-bar phrase unless intentionally asymmetrical. Clarity over variety.'
+    hint: 'Right hand sings the melody; left hand supports with Alberti bass or steady chord rhythm. Phrase in clear 4+4 bars — disrupt once near the end, nowhere else. Clear I-IV-V-I cadences. No rubato, no chromatic meandering. Wit and balance over complexity.'
   },
   chopin: {
     name: 'Frédéric Chopin',
-    hint: 'Delay the expected resolution by one bar. The melody should resist its cadence. Use silence to intensify the next phrase.'
+    hint: 'Right hand: a long, singing cantabile melody that rises, peaks, and aches before resolving. Left hand: wide-spanning arpeggiated broken chords as a cushion of sound beneath — never a walking bass, never Alberti. Delay the expected cadence by one bar. Use one deceptive cadence (V-vi). The melody resists; the left hand flows.'
   },
   debussy: {
     name: 'Claude Debussy',
@@ -123,11 +123,11 @@ export const COMPOSER_INSPIRATIONS = {
   },
   glass: {
     name: 'Philip Glass',
-    hint: 'Repeat a cell until it becomes hypnotic. Add one note, subtract another. Avoid developmental logic entirely.'
+    hint: 'One hand repeats a rhythmic-melodic ostinato cell (3-5 pitches) throughout — steady, unwavering pulse, never stops. The other hand adds sparse, slow melodic notes above. Harmony changes once every 6-8 bars at most. No drama, no climax, no rubato. The piece is the repetition.'
   },
   zimmer: {
     name: 'Hans Zimmer',
-    hint: 'Start with a single repeated note. Double it, then triple it. Build to octave unison, then return to silence. One trajectory only.'
+    hint: 'Start sparse: single notes, wide spacing. Build through doubling — first melody, then octaves, then full texture. Climax with both hands in octave unison. Return to silence. Modal harmony only (Aeolian, Dorian). One trajectory, one arc. The piece is the journey.'
   }
 };
 
