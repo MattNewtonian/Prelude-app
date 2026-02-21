@@ -45,14 +45,14 @@ export const STYLE_PRESETS = {
 
   impressionist: {
     name: 'Impressionist Color',
-    description: 'Static harmony with registral displacement',
+    description: 'Arpeggiated harmony with floating melody',
     harmonyBudget: 'rich',
     constraints: {
-      phrase: 'Avoid regular 4-bar units. Use 3+5 or similar asymmetry.',
-      texture: 'Both hands share material in different registers. Parallel motion allowed. Long silences required.',
-      harmony: 'Choose one: whole-tone scale OR pentatonic OR single extended chord. No functional progression.',
-      avoid: ['clear cadences', 'melodic climax', 'rhythmic drive'],
-      motifConstraint: 'Intervallic sonority (4th, 5th, or 2nd) sustained throughout'
+      phrase: 'Avoid regular 4-bar units. Phrases breathe and overlap — no clean phrase endings.',
+      texture: 'LEFT HAND: continuous arpeggiated broken chords spanning at least 2 octaves — never stops moving. RIGHT HAND: long singing melodic lines with quarter and half notes floating above the LH. The two hands must never both rest simultaneously.',
+      harmony: 'Rich extended chords throughout: major 7th, add9, sus2, parallel chord motion. Avoid plain triads. Use whole-tone or pentatonic color in at least one passage.',
+      avoid: ['staccato', 'sharp accents', 'both hands resting simultaneously', 'plain triads', 'scalar runs without harmonic color'],
+      motifConstraint: 'A short melodic cell in the RH, developed through register shifts and harmonic recoloring — never literally repeated'
     }
   },
 
@@ -115,7 +115,7 @@ export const COMPOSER_INSPIRATIONS = {
   },
   debussy: {
     name: 'Claude Debussy',
-    hint: 'Choose a sonority (parallel 5ths, whole-tone, pentatonic) and exhaust it. Avoid functional harmony. Displacement over development.'
+    hint: 'Left hand: continuous arpeggiated broken chords spanning 2+ octaves — never stops moving, never rests. Right hand: long, singing melodic lines (quarter and half notes) floating above the arpeggios. No scalar runs, no staccato, no fragmented 16th-note snippets. Choose a sonority (parallel chords, whole-tone, pentatonic) and let it drift through color rather than function. Both hands must never both rest simultaneously.'
   },
   gershwin: {
     name: 'George Gershwin',

@@ -197,14 +197,28 @@ export function getModeFlags(params) {
     if (jazzKeywords.some(k => lower.includes(k))) jazz = true;
   }
 
-  // Baroque takes priority over jazz if both somehow triggered
-  if (baroque) jazz = false;
+  // Impressionist detection
+  let impressionist = false;
+  if (style && style.toLowerCase() === 'impressionist') impressionist = true;
+  if (inspiredBy && ['debussy', 'ravel'].includes(inspiredBy.toLowerCase())) impressionist = true;
+  if (prompt) {
+    const lower = prompt.toLowerCase();
+    const impressionistKeywords = [
+      'impressionist', 'debussy', 'ravel', 'clair de lune', 'claire de lune',
+      'whole tone', 'impressionism', 'arabesques', 'nocturne', 'reverie', 'rêverie'
+    ];
+    if (impressionistKeywords.some(k => lower.includes(k))) impressionist = true;
+  }
+
+  // Baroque takes priority over everything
+  if (baroque) { jazz = false; impressionist = false; }
 
   return {
     baroque,
     jazz,
-    organicTime: !baroque && !jazz,
-    antiEtude: !baroque && !jazz
+    impressionist,
+    organicTime: !baroque && !jazz && !impressionist,
+    antiEtude: !baroque && !jazz && !impressionist
   };
 }
 
@@ -216,6 +230,7 @@ function getBehavioralOverlay(params) {
   const modeFlags = getModeFlags(params);
   if (modeFlags.baroque) return BAROQUE_COMPOSE_INSTRUCTIONS;
   if (modeFlags.jazz) return JAZZ_COMPOSE_INSTRUCTIONS;
+  if (modeFlags.impressionist) return IMPRESSIONIST_COMPOSE_INSTRUCTIONS;
   return DEFAULT_COMPOSE_INSTRUCTIONS;
 }
 
@@ -226,6 +241,7 @@ function getPlanBehavioralOverlay(params) {
   const modeFlags = getModeFlags(params);
   if (modeFlags.baroque) return BAROQUE_PLAN_INSTRUCTIONS;
   if (modeFlags.jazz) return JAZZ_PLAN_INSTRUCTIONS;
+  if (modeFlags.impressionist) return IMPRESSIONIST_PLAN_INSTRUCTIONS;
   return DEFAULT_PLAN_INSTRUCTIONS;
 }
 
@@ -242,7 +258,9 @@ function getComposeSystemPrompt(params) {
     ? '% use expressive indications sparingly: con moto, senza rigidità, quasi improvisando'
     : modeFlags.jazz
       ? '% use a steady swing or groove tempo: Swing, With groove, Funky, etc. — NO rubato, NO fermatas'
-      : '% use expressive tempo markings (rubato, poco allargando, etc.)';
+      : modeFlags.impressionist
+        ? '% use floating atmospheric markings: "Très doux", "Flottant", "Senza misura", "Sospeso", "Doucement" — NO metronomic markings'
+        : '% use expressive tempo markings (rubato, poco allargando, etc.)';
 
   return `You are an expert LilyPond engraver and composer. You have received a composer's impressionistic brief — NOT a detailed plan.
 Your job is to compose and engrave a finished piano prelude that embodies the brief's tendencies and emotional stance.
@@ -520,6 +538,82 @@ Role: You are writing a jazz-flavored piano piece that grooves and swings — no
 ANCHOR: The piece must make you want to tap your foot. If it sounds like Bach or Chopin, it is wrong.
 
 --- END JAZZ INSTRUCTIONS ---`;
+
+const IMPRESSIONIST_PLAN_INSTRUCTIONS = `--- IMPRESSIONIST BEHAVIORAL PHILOSOPHY ---
+
+Role: You are composing in the style of Debussy or Ravel — music that floats, shimmers, and suspends time. NOT a classical prelude, NOT a baroque exercise.
+
+1. TEXTURE IS THE PIECE
+- Left hand: continuous arpeggiated broken chords, spanning 2+ octaves, moving through every bar. The LH never stops. Never rests.
+- Right hand: long, singing melodic lines — quarter notes, half notes, tied notes floating above the arpeggios.
+- The two hands must NEVER both rest simultaneously. If RH rests, LH must be moving.
+
+2. HARMONY = COLOR, NOT FUNCTION
+- Extended chords throughout: major 7th, add9, sus2, parallel chord motion.
+- Use whole-tone passages or pentatonic color in at least one section.
+- Avoid V-I resolutions as structural events. Let harmony drift rather than resolve.
+- No plain triads without added color.
+
+3. NO FRAGMENTATION
+- Do NOT write fragmented 16th-note snippets in either hand.
+- Do NOT write disconnected gestures with rests in between every phrase.
+- Both hands must sustain continuous motion and continuity.
+
+4. MELODY IS LONG AND SINGING
+- RH melody should use legato quarter/half note lines — no rapid ornamental figuration.
+- A short melodic cell should be developed through register shifts and harmonic recoloring, never literally repeated.
+
+5. ATMOSPHERE OVER STRUCTURE
+- No clear cadences, no announcement of form.
+- Phrases breathe and overlap — no clean phrase endings.
+- Time should feel suspended, floating, without pulse.
+
+--- END IMPRESSIONIST PHILOSOPHY ---`;
+
+const IMPRESSIONIST_COMPOSE_INSTRUCTIONS = `--- PRELUDE: IMPRESSIONIST BEHAVIORAL INSTRUCTIONS ---
+
+Role: You are writing an impressionist piano piece in the style of Debussy — shimmering, floating, atmospheric. NOT a classical piece, NOT a baroque exercise.
+
+1. LEFT HAND = CONTINUOUS ARPEGGIOS (mandatory — this is the most important rule)
+- Left hand plays broken chord arpeggios spanning at least 2 octaves throughout the piece.
+- The LH must NEVER stop moving. No long rests in the LH. If you write a rest in the LH, delete it.
+- Use rich extended chords for the arpeggios: Gmaj7, Cadd9, Fsus2, parallel major 7th motion.
+- The arpeggios create a shimmering, continuous harp-like texture beneath the melody.
+
+2. RIGHT HAND = LONG SINGING MELODY (mandatory)
+- Right hand plays a long, legato melodic line: quarter notes, half notes, tied notes.
+- The melody floats above the LH arpeggios — think of the opening of Clair de Lune.
+- Do NOT write fragmented 16th-note melodic snippets. No short disconnected gestures.
+- No rapid ornamental figuration. Melody is slow and singing.
+
+3. CRITICAL CONSTRAINT: BOTH HANDS NEVER REST TOGETHER
+- If RH has a rest, LH must be playing arpeggios underneath.
+- If LH has a rest (maximum 1 bar), RH must have a sustained melody note.
+- The texture must feel continuous and unbroken.
+
+4. HARMONY = IMPRESSIONIST COLOR
+- Use extended chords throughout: major 7th, add9, sus2, 6th chords.
+- Include at least one passage of whole-tone or pentatonic color.
+- Use parallel chord motion (parallel major 7ths, parallel 9ths).
+- Avoid plain triads. Avoid V-I cadences as structural points.
+
+5. TEMPO AND ATMOSPHERE
+- Use floating tempo markings: "Très doux", "Flottant", "Senza misura", "Sospeso", "Doucement".
+- No steady pulse or metronomic feel.
+- Time should feel suspended and atmospheric.
+
+6. FORBIDDEN IN IMPRESSIONIST MODE
+- Fragmented 16th-note melodic snippets in the RH
+- Both hands resting simultaneously
+- Staccato, sharp accents, dry textures
+- Walking bass or stride patterns in the LH
+- Functional V-I harmony as structural anchors
+- Scalar runs without harmonic color
+- Plain triads (add a 7th, 9th, or suspension to every chord)
+
+ANCHOR: The piece should feel like light on water — the LH is the water (always moving), the RH is the light (floating above). If it sounds dry, fragmented, or classical, it is wrong.
+
+--- END IMPRESSIONIST INSTRUCTIONS ---`;
 
 const DEFAULT_PLAN_INSTRUCTIONS = `--- CORE COMPOSITION PHILOSOPHY ---
 
@@ -1062,7 +1156,7 @@ async function generateLilyPondFromPlan(plan, params, conversationHistory = [], 
  */
 async function refineLilyPond(lilypondCode, plan, params, costTracking) {
   const modeFlags = getModeFlags(params);
-  const modeName = modeFlags.baroque ? 'Baroque mode' : 'Organic Time / Anti-Étude mode';
+  const modeName = modeFlags.baroque ? 'Baroque mode' : modeFlags.jazz ? 'Jazz mode' : modeFlags.impressionist ? 'Impressionist mode' : 'Organic Time / Anti-Étude mode';
 
   // Use the SAME behavioral overlay as initial generation
   const systemPrompt = getComposeSystemPrompt(params) + `
@@ -1322,7 +1416,7 @@ export async function generateWithRepair(params, progressCallback) {
         try {
           checkAPICallLimit(costTracking);
 
-          const activeMode = modeFlags.baroque ? 'Baroque mode' : 'Organic Time / Anti-Étude mode';
+          const activeMode = modeFlags.baroque ? 'Baroque mode' : modeFlags.jazz ? 'Jazz mode' : modeFlags.impressionist ? 'Impressionist mode' : 'Organic Time / Anti-Étude mode';
           const fixPrompt = `The compiled LilyPond has static-pattern issues:\n${staticIssues.join('\n')}\n\nFix ONLY these issues:\n- Vary the left hand so no 3+ consecutive bars are identical\n- Introduce registral shifts, rhythmic variation, or harmonic change in flagged passages\n- Keep the overall structure, key, and bar count the same\n- Preserve the stylistic/behavioral constraints (${activeMode}). Only fix the flagged passages — do NOT rewrite the piece or drift toward exercise phrasing.\n- Output ONLY the complete corrected LilyPond code.`;
 
           const fixHistory = [
@@ -1493,7 +1587,7 @@ export async function generateWithRepair(params, progressCallback) {
       }
 
       // REPAIR PROMPT — preserves behavioral constraints
-      const activeMode = modeFlags.baroque ? 'Baroque mode' : 'Organic Time / Anti-Étude mode';
+      const activeMode = modeFlags.baroque ? 'Baroque mode' : modeFlags.jazz ? 'Jazz mode' : modeFlags.impressionist ? 'Impressionist mode' : 'Organic Time / Anti-Étude mode';
       const repairPrompt = `You are fixing LilyPond compilation errors.
 
 Task:
