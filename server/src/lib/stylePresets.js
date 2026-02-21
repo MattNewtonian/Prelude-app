@@ -74,11 +74,11 @@ export const STYLE_PRESETS = {
     description: 'Repetition with subtraction',
     harmonyBudget: 'tight',
     constraints: {
-      phrase: 'No phrases. Continuous repetition of 1-bar cell.',
-      texture: 'One hand repeats ostinato, other adds single notes at long intervals. Maximum 2 notes per bar in non-ostinato hand.',
-      harmony: 'Static. Choose I or vi and do not leave. No cadences.',
-      avoid: ['development', 'climax', 'more than 3 pitches per bar'],
-      motifConstraint: 'Single intervallic cell (2-3 notes) repeated without variation'
+      phrase: 'No dramatic phrases. One hand sustains a repeating ostinato cell; the other moves slowly above or below it.',
+      texture: 'One hand repeats a rhythmic ostinato (3-5 distinct pitches). The other hand adds sparse melodic notes — at least one new pitch every 4 bars. Both hands together must use at least 5 distinct pitch classes.',
+      harmony: 'Mostly static, but allow slow harmonic drift — one chord change every 6-8 bars minimum. No sudden modulations.',
+      avoid: ['dramatic climax', 'rapid harmonic rhythm', 'dense textures', 'scalar runs'],
+      motifConstraint: 'Small cell (3-5 notes) repeated, but register and voicing shift gradually across the piece'
     }
   },
 

@@ -644,55 +644,92 @@ You are not demonstrating music. You are letting music happen and stopping befor
 function checkStaticPatterns(lilypondCode) {
   const issues = [];
 
-  // Extract left hand content between leftHand = { ... }
-  const lhMatch = lilypondCode.match(/leftHand\s*=\s*\{([\s\S]*?)\n\}/);
-  if (!lhMatch) return issues;
+  const noComments = lilypondCode.replace(/%[^\n]*/g, '');
 
-  const lhContent = lhMatch[1];
+  function normalizeHand(content) {
+    return content
+      .replace(/%[^\n]*/g, '')
+      .replace(/\\(clef|key|time|tempo|bar|barNumberCheck)[^\n]*/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
 
-  // Normalize: strip comments, collapse whitespace
-  const normalized = lhContent
-    .replace(/%[^\n]*/g, '')
-    .replace(/\\(clef|key|time|bar)\b[^\n]*/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
+  function extractPitchClasses(content) {
+    const notes = content.match(/\b[a-g](?:is|es|isis|eses)?/g) || [];
+    return new Set(notes);
+  }
 
-  // Split into bars by barcheck '|' or by rough note groupings
-  const bars = normalized.split('|').map(b => b.trim()).filter(b => b.length > 0);
+  // ── Left hand checks ──
+  const lhMatch = noComments.match(/leftHand\s*=\s*\{([\s\S]*?)\n\}/);
+  if (lhMatch) {
+    const lhNorm = normalizeHand(lhMatch[1]);
+    const lhBars = lhNorm.split('|').map(b => b.trim()).filter(b => b.length > 0);
 
-  if (bars.length < 3) return issues;
-
-  // Check for 3+ consecutive identical bars (static LH)
-  let consecutiveIdentical = 1;
-  for (let i = 1; i < bars.length; i++) {
-    if (bars[i] === bars[i - 1]) {
-      consecutiveIdentical++;
-      if (consecutiveIdentical >= 3) {
-        issues.push(`Static left hand: bars ${i - 1}-${i + 1} are identical ("${bars[i].substring(0, 40)}...")`);
-        break;
+    if (lhBars.length >= 3) {
+      // 3+ consecutive identical bars
+      let consecutiveIdentical = 1;
+      for (let i = 1; i < lhBars.length; i++) {
+        if (lhBars[i] === lhBars[i - 1]) {
+          consecutiveIdentical++;
+          if (consecutiveIdentical >= 3) {
+            issues.push(`Static left hand: bars ${i - 1}-${i + 1} are identical ("${lhBars[i].substring(0, 40)}...")`);
+            break;
+          }
+        } else {
+          consecutiveIdentical = 1;
+        }
       }
-    } else {
-      consecutiveIdentical = 1;
+
+      // Same pitch classes across 4+ consecutive bars
+      const lhBarPitches = lhBars.map(bar => {
+        const pitches = bar.match(/[a-g](?:is|es|isis|eses)?/g);
+        return pitches ? [...new Set(pitches)].sort().join(',') : '';
+      });
+      let consecutiveSame = 1;
+      for (let i = 1; i < lhBarPitches.length; i++) {
+        if (lhBarPitches[i] && lhBarPitches[i] === lhBarPitches[i - 1]) {
+          consecutiveSame++;
+          if (consecutiveSame >= 4) {
+            issues.push(`Harmonic stasis: left hand uses identical pitch classes for ${consecutiveSame} consecutive bars around bar ${i + 1}`);
+            break;
+          }
+        } else {
+          consecutiveSame = 1;
+        }
+      }
     }
   }
 
-  // Check for harmonic stasis: same pitch classes repeated across 4+ bars
-  // Extract pitch letters (ignoring octave marks and durations)
-  const barPitches = bars.map(bar => {
-    const pitches = bar.match(/[a-g](?:is|es|isis|eses)?/g);
-    return pitches ? pitches.sort().join(',') : '';
-  });
+  // ── Right hand checks ──
+  const rhMatch = noComments.match(/rightHand\s*=\s*\{([\s\S]*?)\n\}/);
+  if (rhMatch) {
+    const rhNorm = normalizeHand(rhMatch[1]);
+    const rhBars = rhNorm.split('|').map(b => b.trim()).filter(b => b.length > 0);
 
-  let consecutiveSamePitches = 1;
-  for (let i = 1; i < barPitches.length; i++) {
-    if (barPitches[i] && barPitches[i] === barPitches[i - 1]) {
-      consecutiveSamePitches++;
-      if (consecutiveSamePitches >= 4) {
-        issues.push(`Harmonic stasis: left hand uses identical pitch classes for ${consecutiveSamePitches} consecutive bars around bar ${i + 1}`);
-        break;
+    if (rhBars.length >= 3) {
+      // 3+ consecutive identical bars in RH
+      let consecutiveIdentical = 1;
+      for (let i = 1; i < rhBars.length; i++) {
+        if (rhBars[i] === rhBars[i - 1]) {
+          consecutiveIdentical++;
+          if (consecutiveIdentical >= 3) {
+            issues.push(`Static right hand: bars ${i - 1}-${i + 1} are identical ("${rhBars[i].substring(0, 40)}...")`);
+            break;
+          }
+        } else {
+          consecutiveIdentical = 1;
+        }
       }
-    } else {
-      consecutiveSamePitches = 1;
+    }
+
+    // ── Global pitch variety check (both hands combined) ──
+    const allPitches = extractPitchClasses(rhMatch[1] + (lhMatch ? lhMatch[1] : ''));
+    const noteCount = (noComments.match(/\b[a-g](?:is|es|isis|eses)?[\d,']/g) || []).length;
+    if (noteCount > 40 && allPitches.size < 4) {
+      issues.push(
+        `Extremely low pitch variety: only ${allPitches.size} distinct pitch class(es) used across the whole piece ` +
+        `(${[...allPitches].join(', ')}). Add more harmonic color — at least 5-6 distinct pitches are needed.`
+      );
     }
   }
 
