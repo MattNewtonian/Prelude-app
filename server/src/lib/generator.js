@@ -72,6 +72,18 @@ function createCostTracking() {
 }
 
 /**
+ * Normalize free text to keep prompts concise and token-efficient.
+ */
+function compactPromptText(text, maxLength = 240) {
+  if (!text || typeof text !== 'string') return '';
+
+  const compact = text.replace(/\s+/g, ' ').trim();
+  if (compact.length <= maxLength) return compact;
+
+  return compact.slice(0, maxLength - 3).trimEnd() + '...';
+}
+
+/**
  * Build provenance markup block for LilyPond PDF.
  * Appears as a small, muted info block above the score.
  */
@@ -272,6 +284,12 @@ SYNTAX RULES:
 - Use articulations SPARINGLY (max 2-3 per phrase)
 - Crescendo/decrescendo must be paired: \\< ... \\!
 - Never combine articulations with dynamics: c'16->\\< is INVALID
+- Dynamic contour is REQUIRED: include at least one soft marking (pp/p/mp) and one strong marking (mf/f/ff) across the piece
+- Use accent language for buildup/power where musically justified: >, ^, or \\sfz (sparingly, not every bar)
+- Shape power with hairpins and dynamic contrast; avoid staying at one dynamic level throughout
+- Keep each hand physically playable: avoid vertical stacks wider than an octave + third unless explicitly rolled
+- Avoid dense pitch clusters and repeated multi-note piles; default to single-note lines or two-note intervals
+- Large leaps (> octave) should be occasional, not continuous texture
 - All braces must be balanced
 - Use \\fermata on notes/rests for hesitation points — not only at cadences
 - Do NOT change \\time mid-piece unless explicitly requested
@@ -749,7 +767,8 @@ SPECIFICATIONS:
 - Difficulty: ${difficulty}`;
 
   if (prompt) {
-    userPrompt += `\n- User direction: ${prompt}`;
+    userPrompt += `
+- User direction: ${compactPromptText(prompt)}`;
   }
 
   if (negativeConstraints) {
@@ -842,7 +861,7 @@ function buildLilypondFromPlanPrompt(plan, params) {
   const systemPrompt = getComposeSystemPrompt(params);
 
   const userPrompt = `COMPOSER BRIEF:
-${JSON.stringify(plan, null, 2)}
+${JSON.stringify(plan)}
 
 SPECIFICATIONS:
 - Key: ${key}
@@ -922,7 +941,7 @@ REFINE PASS CONSTRAINTS:
 - Output ONLY the complete refined LilyPond code`;
 
   const userPrompt = `COMPOSER BRIEF:
-${JSON.stringify(plan, null, 2)}
+${JSON.stringify(plan)}
 
 CURRENT LILYPOND CODE:
 ${lilypondCode}
