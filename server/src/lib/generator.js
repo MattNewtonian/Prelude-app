@@ -284,6 +284,9 @@ SYNTAX RULES:
 - Use articulations SPARINGLY (max 2-3 per phrase)
 - Crescendo/decrescendo must be paired: \\< ... \\!
 - Never combine articulations with dynamics: c'16->\\< is INVALID
+- Dynamic contour is REQUIRED: include at least one soft marking (pp/p/mp) and one strong marking (mf/f/ff) across the piece
+- Use accent language for buildup/power where musically justified: >, ^, or \\sfz (sparingly, not every bar)
+- Shape power with hairpins and dynamic contrast; avoid staying at one dynamic level throughout
 - Keep each hand physically playable: avoid vertical stacks wider than an octave + third unless explicitly rolled
 - Avoid dense pitch clusters and repeated multi-note piles; default to single-note lines or two-note intervals
 - Large leaps (> octave) should be occasional, not continuous texture
