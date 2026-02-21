@@ -163,31 +163,48 @@ function injectProvenance(code, provenanceMarkup) {
 
 /**
  * Detect active behavioral mode flags for a given params object.
- * Returns { baroque, organicTime, antiEtude } booleans.
+ * Returns { baroque, jazz, organicTime, antiEtude } booleans.
  * Low threshold — better to over-trigger than under-trigger.
  */
 export function getModeFlags(params) {
   const { style, inspiredBy, prompt } = params;
 
-  // Baroque detection: check all three sources
+  // Baroque detection
   let baroque = false;
   if (style && ['baroque', 'keyboard', 'partita'].includes(style.toLowerCase())) baroque = true;
   if (inspiredBy && inspiredBy.toLowerCase() === 'bach') baroque = true;
   if (prompt) {
     const lower = prompt.toLowerCase();
-    const keywords = [
+    const baroqueKeywords = [
       'bach', 'partita', 'fugue', 'invention', 'baroque', 'contrapuntal',
       'counterpoint', 'prelude and fugue', 'well-tempered', 'toccata',
       'sarabande', 'allemande', 'courante', 'gigue', 'bourrée', 'bourree',
       'gavotte', 'minuet', 'passacaglia', 'chaconne', 'ricercar', 'sinfonia'
     ];
-    if (keywords.some(k => lower.includes(k))) baroque = true;
+    if (baroqueKeywords.some(k => lower.includes(k))) baroque = true;
   }
+
+  // Jazz detection
+  let jazz = false;
+  if (style && style.toLowerCase() === 'jazz-tinged') jazz = true;
+  if (inspiredBy && ['gershwin', 'glass'].includes(inspiredBy.toLowerCase())) jazz = true;
+  if (prompt) {
+    const lower = prompt.toLowerCase();
+    const jazzKeywords = [
+      'jazz', 'swing', 'bebop', 'blues', 'groove', 'groovy', 'funky',
+      'syncopat', 'boogie', 'stride', 'ragtime', 'soul', 'bossa', 'latin jazz'
+    ];
+    if (jazzKeywords.some(k => lower.includes(k))) jazz = true;
+  }
+
+  // Baroque takes priority over jazz if both somehow triggered
+  if (baroque) jazz = false;
 
   return {
     baroque,
-    organicTime: !baroque,   // default mode when not baroque
-    antiEtude: !baroque       // default mode when not baroque
+    jazz,
+    organicTime: !baroque && !jazz,
+    antiEtude: !baroque && !jazz
   };
 }
 
@@ -197,7 +214,9 @@ export function getModeFlags(params) {
  */
 function getBehavioralOverlay(params) {
   const modeFlags = getModeFlags(params);
-  return modeFlags.baroque ? BAROQUE_COMPOSE_INSTRUCTIONS : DEFAULT_COMPOSE_INSTRUCTIONS;
+  if (modeFlags.baroque) return BAROQUE_COMPOSE_INSTRUCTIONS;
+  if (modeFlags.jazz) return JAZZ_COMPOSE_INSTRUCTIONS;
+  return DEFAULT_COMPOSE_INSTRUCTIONS;
 }
 
 /**
@@ -205,7 +224,9 @@ function getBehavioralOverlay(params) {
  */
 function getPlanBehavioralOverlay(params) {
   const modeFlags = getModeFlags(params);
-  return modeFlags.baroque ? BAROQUE_PLAN_INSTRUCTIONS : DEFAULT_PLAN_INSTRUCTIONS;
+  if (modeFlags.baroque) return BAROQUE_PLAN_INSTRUCTIONS;
+  if (modeFlags.jazz) return JAZZ_PLAN_INSTRUCTIONS;
+  return DEFAULT_PLAN_INSTRUCTIONS;
 }
 
 /**
@@ -219,7 +240,9 @@ function getComposeSystemPrompt(params) {
 
   const tempoComment = modeFlags.baroque
     ? '% use expressive indications sparingly: con moto, senza rigidità, quasi improvisando'
-    : '% use expressive tempo markings (rubato, poco allargando, etc.)';
+    : modeFlags.jazz
+      ? '% use a steady swing or groove tempo: Swing, With groove, Funky, etc. — NO rubato, NO fermatas'
+      : '% use expressive tempo markings (rubato, poco allargando, etc.)';
 
   return `You are an expert LilyPond engraver and composer. You have received a composer's impressionistic brief — NOT a detailed plan.
 Your job is to compose and engrave a finished piano prelude that embodies the brief's tendencies and emotional stance.
@@ -423,6 +446,80 @@ If it feels planned, revise.
 ANCHOR: Compose as if the barline is an inconvenience, the cadence is an accident, and motion is the only truth.
 
 --- END BAROQUE INSTRUCTIONS ---`;
+
+const JAZZ_PLAN_INSTRUCTIONS = `--- JAZZ BEHAVIORAL PHILOSOPHY ---
+
+Role: You are composing music that grooves, swings, and breathes with rhythmic life — not a classical prelude in disguise.
+
+1. RHYTHM IS EVERYTHING
+- The piece must feel syncopated. Melody anticipates the beat; bass lands on it.
+- Avoid straight quarter-note or eighth-note melody lines. Off-beat accents are the default.
+- At least one hand should imply swing or shuffle feel at all times.
+
+2. HARMONY IS FUNCTIONAL AND RICH
+- Use ii-V-I progressions as the structural backbone.
+- Include at least one 7th chord, one 9th or 11th extension, and one chromatic approach chord.
+- Avoid purely diatonic progressions — they sound classical, not jazz.
+
+3. LEFT HAND = GROOVE ENGINE
+- Left hand provides rhythmic grounding: walking bass, stride, or locked-hands texture.
+- Walking bass: one note per beat, stepwise or via chord tones, covering 1-2 octaves.
+- Stride: bass note on beat 1+3, chord on beat 2+4.
+- Do NOT write flowing arpeggios or scale runs in the left hand.
+
+4. TEMPO IS STEADY
+- Jazz has a pulse. Do NOT use rubato, fermatas, or tempo fluctuations.
+- Use a clear swing or groove marking (e.g., "With swing", "Funky", "Bright swing").
+
+5. AVOID CLASSICAL HABITS
+- No flowing 16th-note scalar lines in the right hand
+- No "senza rigidità", "quasi fermata", "tempo sospeso" markings
+- No extremely low bass register (stay above C,, in the left hand)
+- No imitative counterpoint
+
+--- END JAZZ PHILOSOPHY ---`;
+
+const JAZZ_COMPOSE_INSTRUCTIONS = `--- PRELUDE: JAZZ BEHAVIORAL INSTRUCTIONS ---
+
+Role: You are writing a jazz-flavored piano piece that grooves and swings — not a classical prelude.
+
+1. RHYTHM (mandatory)
+- Melody must be syncopated: anticipate beats, land off the beat, use tied notes across barlines.
+- Every phrase should have at least one off-beat accent or anticipation.
+- Avoid straight quarter-note or eighth-note melody lines entirely.
+
+2. LEFT HAND = GROOVE (mandatory)
+- Use walking bass (one note per beat, stepwise/chord-tone motion) OR stride (bass + chord alternation).
+- Walking bass stays in the range C, to c' — no extreme low notes.
+- Stride: bass note beats 1+3, voicing beats 2+4.
+- Do NOT write scale runs, arpeggios, or flowing 16th notes in the left hand.
+
+3. HARMONY
+- ii-V-I is your structural backbone. Use it at least twice per section.
+- Include: at least two dominant 7th chords, one chord with 9th or 11th extension.
+- Use chromatic approach notes (half-step above or below chord tones).
+- One tritone substitution is encouraged.
+
+4. TEMPO AND FEEL
+- Use a steady, clear tempo marking: "With swing", "Funky", "With groove", "Bright swing", "Laid-back".
+- Do NOT use: rubato, senza rigidità, quasi fermata, tempo sospeso, poco allargando, or any fermata.
+- The pulse must be unwavering throughout.
+
+5. ARTICULATION
+- Use staccato (.) on off-beat notes to imply swing.
+- Accents (>) on syncopated arrivals.
+- Keep dynamics lively: mp to f range with clear contrast.
+
+6. FORBIDDEN IN JAZZ MODE
+- Flowing scalar 16th-note lines in either hand
+- Classical voice-leading (no parallel motion rules — jazz uses parallel anything)
+- Extreme low register in left hand (below C,)
+- Fermatas or tempo changes
+- Imitative counterpoint
+
+ANCHOR: The piece must make you want to tap your foot. If it sounds like Bach or Chopin, it is wrong.
+
+--- END JAZZ INSTRUCTIONS ---`;
 
 const DEFAULT_PLAN_INSTRUCTIONS = `--- CORE COMPOSITION PHILOSOPHY ---
 
