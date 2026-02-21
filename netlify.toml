@@ -1,0 +1,17 @@
+[build]
+  publish = "public"
+
+# Replace YOUR_RENDER_URL with your actual Render service URL, e.g.:
+# https://prelude-app-xxxx.onrender.com
+
+[[redirects]]
+  from = "/api/*"
+  to = "YOUR_RENDER_URL/api/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/outputs/*"
+  to = "YOUR_RENDER_URL/outputs/:splat"
+  status = 200
+  force = true

@@ -1,0 +1,28 @@
+{
+  "name": "prelude-app",
+  "version": "1.0.0",
+  "description": "LilyPond sheet music generation API with Express",
+  "main": "server/src/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon --ignore outputs/ --ignore public/ server/src/index.js",
+    "start": "node server/src/index.js"
+  },
+  "keywords": [
+    "lilypond",
+    "music",
+    "generation"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.1",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "midi-parser-js": "^4.0.4",
+    "uuid": "^11.0.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}

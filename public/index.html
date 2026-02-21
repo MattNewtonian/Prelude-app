@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prelude App</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      font-weight: 400;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 2.5em;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      opacity: 0.9;
+      font-size: 1.05em;
+      font-weight: 400;
+    }
+
+    .content {
+      padding: 40px;
+    }
+
+    .form-section {
+      margin-bottom: 28px;
+      padding: 24px;
+      background: #fafbfd;
+      border-radius: 10px;
+    }
+
+    @media (min-width: 601px) {
+      .form-section {
+        margin-bottom: 24px;
+        padding: 22px 24px;
+      }
+      .form-group {
+        margin-bottom: 16px;
+      }
+    }
+
+    .section-title {
+      font-size: 1.3em;
+      font-weight: 600;
+      color: #667eea;
+      margin-bottom: 6px;
+    }
+
+    .section-subtitle {
+      font-size: 0.9em;
+      color: #888;
+      margin-bottom: 18px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #333;
+      font-size: 0.95em;
+    }
+
+    .label-optional {
+      font-weight: normal;
+      color: #999;
+      font-size: 0.85em;
+    }
+
+    select, input, textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1em;
+      font-family: inherit;
+      font-weight: 400;
+      transition: border-color 0.3s;
+      background: white;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+      line-height: 1.7;
+    }
+
+    select:focus, input:focus, textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    @media (max-width: 600px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+      .content {
+        padding: 20px;
+      }
+      .form-section {
+        padding: 18px;
+      }
+      button {
+        padding: 18px;
+      }
+    }
+
+    /* Quick Start Chips */
+    .prompt-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .prompt-chip {
+      padding: 6px 14px;
+      background: #eef0fb;
+      color: #667eea;
+      border: none;
+      border-radius: 20px;
+      font-size: 0.82em;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .prompt-chip:hover {
+      background: #dde1f7;
+    }
+
+    /* Constraint hint */
+    .constraint-hint {
+      font-size: 0.84em;
+      color: #aaa;
+      margin-top: 8px;
+      font-style: italic;
+      transition: opacity 0.3s;
+    }
+
+    /* Difficulty description */
+    .difficulty-desc {
+      font-size: 0.84em;
+      color: #888;
+      margin-top: 5px;
+    }
+
+    button[type="submit"] {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    button[type="submit"]:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    button[type="submit"]:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .status {
+      margin-top: 30px;
+      padding: 20px;
+      background: #f5f7fa;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .status.visible {
+      display: block;
+    }
+
+    .status-title {
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .status-message {
+      color: #666;
+      margin-bottom: 10px;
+      font-size: 0.95em;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 15px 0;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      transition: width 0.3s ease;
+      width: 0%;
+    }
+
+    .outputs {
+      margin-top: 20px;
+    }
+
+    .ready-line {
+      font-size: 1.1em;
+      font-weight: 500;
+      color: #2d7a2d;
+      margin-bottom: 16px;
+    }
+
+    .output-link {
+      display: inline-block;
+      margin: 5px 10px 5px 0;
+      padding: 10px 20px;
+      background: #667eea;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 500;
+      font-size: 0.95em;
+      transition: background 0.3s;
+    }
+
+    .output-link:hover {
+      background: #764ba2;
+    }
+
+    .output-link-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 12px 24px;
+      font-size: 1em;
+    }
+
+    .error {
+      background: #fef5f5;
+      color: #9b4d4d;
+      padding: 18px;
+      border-radius: 8px;
+      border-left: 4px solid #d88;
+      margin-top: 15px;
+      font-size: 0.92em;
+      line-height: 1.6;
+    }
+
+    .error-retry {
+      display: block;
+      margin-top: 8px;
+      color: #888;
+      font-size: 0.9em;
+    }
+
+    .success {
+      color: #2d7a2d;
+      font-weight: 600;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 3px solid rgba(102, 126, 234, 0.3);
+      border-top-color: #667eea;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .help-text {
+      font-size: 0.84em;
+      color: #888;
+      margin-top: 5px;
+    }
+
+    .audio-player {
+      margin: 0 0 16px 0;
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      border: 2px solid #e0e0e0;
+    }
+
+    .audio-player-title {
+      font-weight: 500;
+      margin-bottom: 10px;
+      color: #667eea;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .steinway-badge {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.75em;
+      font-weight: 600;
+    }
+
+    audio {
+      width: 100%;
+      margin-top: 10px;
+      border-radius: 4px;
+    }
+
+    .download-section {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #e8e8e8;
+    }
+
+    .download-section-label {
+      font-size: 0.9em;
+      color: #888;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Prelude App</h1>
+      <p>Compose an original piano prelude in seconds</p>
+    </div>
+
+    <div class="content">
+      <form id="generateForm">
+
+        <!-- Primary Input: Natural Language Prompt -->
+        <div class="form-section">
+          <div class="section-title">Describe Your Prelude</div>
+          <div class="section-subtitle">Describe the character, mood, or texture you have in mind</div>
+
+          <div class="prompt-chips">
+            <button type="button" class="prompt-chip" data-prompt="Stormy, driving bass, minor key">Stormy, driving bass, minor key</button>
+            <button type="button" class="prompt-chip" data-prompt="Gentle, flowing, impressionist colors">Gentle, flowing, impressionist colors</button>
+            <button type="button" class="prompt-chip" data-prompt="Joyful, clear phrasing, classical">Joyful, clear phrasing, classical</button>
+            <button type="button" class="prompt-chip" data-prompt="Sparse, meditative, slow pulse">Sparse, meditative, slow pulse</button>
+          </div>
+
+          <div class="form-group">
+            <label for="prompt">
+              Creative Prompt
+              <span class="label-optional">(optional but recommended)</span>
+            </label>
+            <textarea
+              id="prompt"
+              name="prompt"
+              placeholder="e.g., 'restless, stormy, strong bass motion' or 'gentle and flowing with peaceful harmonies'"
+              maxlength="500"
+            ></textarea>
+            <div class="help-text">Think in musical terms: mood, motion, density, register</div>
+          </div>
+        </div>
+
+        <!-- Style & Inspiration -->
+        <div class="form-section">
+          <div class="section-title">Style & Inspiration</div>
+          <div class="section-subtitle">Optional constraints. Leave blank for freer composition.</div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="style">Style Preset</label>
+              <select id="style" name="style">
+                <option value="">None</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="inspiredBy">Inspired By</label>
+              <select id="inspiredBy" name="inspiredBy">
+                <option value="">None</option>
+              </select>
+            </div>
+          </div>
+          <div class="constraint-hint" id="constraintHint"></div>
+        </div>
+
+        <!-- Musical Parameters -->
+        <div class="form-section">
+          <div class="section-title">Musical Parameters</div>
+          <div class="section-subtitle">Set key, length, and difficulty level</div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="key">Key Signature</label>
+              <select id="key" name="key" required>
+                <option value="">Select a key...</option>
+                <optgroup label="Major Keys">
+                  <option value="C major">C Major</option>
+                  <option value="G major">G Major</option>
+                  <option value="D major">D Major</option>
+                  <option value="A major">A Major</option>
+                  <option value="E major">E Major</option>
+                  <option value="B major">B Major</option>
+                  <option value="F major">F Major</option>
+                  <option value="Bb major">B&#9837; Major</option>
+                  <option value="Eb major">E&#9837; Major</option>
+                  <option value="Ab major">A&#9837; Major</option>
+                  <option value="Db major">D&#9837; Major</option>
+                  <option value="Gb major">G&#9837; Major</option>
+                </optgroup>
+                <optgroup label="Minor Keys">
+                  <option value="A minor">A Minor</option>
+                  <option value="E minor">E Minor</option>
+                  <option value="B minor">B Minor</option>
+                  <option value="F# minor">F# Minor</option>
+                  <option value="C# minor">C# Minor</option>
+                  <option value="G# minor">G# Minor</option>
+                  <option value="D minor" selected>D Minor</option>
+                  <option value="G minor">G Minor</option>
+                  <option value="C minor">C Minor</option>
+                  <option value="F minor">F Minor</option>
+                  <option value="Bb minor">B&#9837; Minor</option>
+                  <option value="Eb minor">E&#9837; Minor</option>
+                </optgroup>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="difficulty">Difficulty Level</label>
+              <select id="difficulty" name="difficulty" required>
+                <option value="beginner">Beginner</option>
+                <option value="intermediate" selected>Intermediate</option>
+                <option value="advanced">Advanced</option>
+              </select>
+              <div class="difficulty-desc" id="difficultyDesc">Balanced textures and motion</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="bars">Number of Bars (4-64)</label>
+            <input type="number" id="bars" name="bars" min="4" max="64" value="24" required>
+          </div>
+        </div>
+
+        <button type="submit" id="generateBtn">Compose prelude</button>
+      </form>
+
+      <div id="status" class="status">
+        <div class="status-title" id="statusTitle">Status</div>
+        <div class="status-message" id="statusMessage"></div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div id="outputs" class="outputs"></div>
+        <div id="error" class="error" style="display: none;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Static style and composer data
+    const availableStyles = [
+      { value: 'baroque',      label: 'Baroque Counterpoint', description: 'Two-voice thinking with clear independence' },
+      { value: 'classical',    label: 'Classical Clarity',    description: 'Periodic phrasing with one disruption' },
+      { value: 'romantic',     label: 'Romantic Lyricism',    description: 'Delayed resolution with intensified dominant' },
+      { value: 'impressionist',label: 'Impressionist Color',  description: 'Static harmony with registral displacement' },
+      { value: 'jazz-tinged',  label: 'Jazz-tinged',          description: 'Syncopation with delayed bass' },
+      { value: 'minimal',      label: 'Minimal / Ambient',    description: 'Repetition with subtraction' },
+      { value: 'cinematic',    label: 'Modern Cinematic',     description: 'Build-release with octave doubling' }
+    ];
+
+    const availableComposers = [
+      { value: 'bach',     label: 'J.S. Bach' },
+      { value: 'mozart',   label: 'W.A. Mozart' },
+      { value: 'chopin',   label: 'Frédéric Chopin' },
+      { value: 'debussy',  label: 'Claude Debussy' },
+      { value: 'gershwin', label: 'George Gershwin' },
+      { value: 'glass',    label: 'Philip Glass' },
+      { value: 'zimmer',   label: 'Hans Zimmer' }
+    ];
+
+    // Populate dropdowns
+    const styleSelect = document.getElementById('style');
+    availableStyles.forEach(style => {
+      const option = document.createElement('option');
+      option.value = style.value;
+      option.textContent = `${style.label} — ${style.description}`;
+      styleSelect.appendChild(option);
+    });
+
+    const composerSelect = document.getElementById('inspiredBy');
+    availableComposers.forEach(composer => {
+      const option = document.createElement('option');
+      option.value = composer.value;
+      option.textContent = composer.label;
+      composerSelect.appendChild(option);
+    });
+
+    // Quick Start chips
+    document.querySelectorAll('.prompt-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.getElementById('prompt').value = chip.dataset.prompt;
+        document.getElementById('prompt').focus();
+      });
+    });
+
+    // Constraint hint (when both Style & Inspired By are empty)
+    const inspiredBySelect = composerSelect;
+    const constraintHint = document.getElementById('constraintHint');
+
+    function updateConstraintHint() {
+      if (!styleSelect.value && !inspiredBySelect.value) {
+        constraintHint.textContent = 'No stylistic constraints selected.';
+      } else {
+        constraintHint.textContent = '';
+      }
+    }
+
+    styleSelect.addEventListener('change', updateConstraintHint);
+    inspiredBySelect.addEventListener('change', updateConstraintHint);
+    updateConstraintHint();
+
+    // Difficulty descriptions
+    const difficultyDescs = {
+      beginner: 'Simpler rhythms, narrower range',
+      intermediate: 'Balanced textures and motion',
+      advanced: 'Denser textures, wider keyboard span'
+    };
+
+    const difficultySelect = document.getElementById('difficulty');
+    const difficultyDesc = document.getElementById('difficultyDesc');
+
+    difficultySelect.addEventListener('change', () => {
+      difficultyDesc.textContent = difficultyDescs[difficultySelect.value] || '';
+    });
+
+    // Form elements
+    const form = document.getElementById('generateForm');
+    const generateBtn = document.getElementById('generateBtn');
+    const statusDiv = document.getElementById('status');
+    const statusTitle = document.getElementById('statusTitle');
+    const statusMessage = document.getElementById('statusMessage');
+    const progressFill = document.getElementById('progressFill');
+    const outputsDiv = document.getElementById('outputs');
+    const errorDiv = document.getElementById('error');
+
+    let pollInterval = null;
+    let statusRotationInterval = null;
+
+    // Rotating status messages during generation
+    const runningMessages = [
+      'Sketching musical ideas\u2026',
+      'Refining harmony\u2026',
+      'Shaping the phrase structure\u2026',
+      'Engraving the score\u2026',
+      'Balancing voices\u2026'
+    ];
+    let currentMessageIndex = 0;
+
+    function startStatusRotation() {
+      currentMessageIndex = 0;
+      statusMessage.textContent = runningMessages[0];
+      statusRotationInterval = setInterval(() => {
+        currentMessageIndex = (currentMessageIndex + 1) % runningMessages.length;
+        statusMessage.textContent = runningMessages[currentMessageIndex];
+      }, 4000);
+    }
+
+    function stopStatusRotation() {
+      if (statusRotationInterval) {
+        clearInterval(statusRotationInterval);
+        statusRotationInterval = null;
+      }
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = {
+        key: document.getElementById('key').value,
+        bars: parseInt(document.getElementById('bars').value),
+        difficulty: document.getElementById('difficulty').value,
+        prompt: document.getElementById('prompt').value.trim() || undefined,
+        style: document.getElementById('style').value || undefined,
+        inspiredBy: document.getElementById('inspiredBy').value || undefined
+      };
+
+      Object.keys(formData).forEach(key =>
+        formData[key] === undefined && delete formData[key]
+      );
+
+      // Reset UI
+      generateBtn.disabled = true;
+      generateBtn.textContent = 'Composing\u2026';
+      statusDiv.classList.add('visible');
+      statusTitle.innerHTML = '<span class="spinner"></span>Composing';
+      statusMessage.textContent = 'Starting\u2026';
+      progressFill.style.width = '0%';
+      outputsDiv.innerHTML = '';
+      errorDiv.style.display = 'none';
+
+      try {
+        const response = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+
+        if (!response.ok) {
+          let message = 'Failed to start generation';
+          try {
+            const error = await response.json();
+            message = error.error || message;
+          } catch {
+            if (response.status === 404) {
+              message = 'Backend server not reachable. Make sure the server is running.';
+            }
+          }
+          throw new Error(message);
+        }
+
+        let jobId;
+        try {
+          const data = await response.json();
+          jobId = data.jobId;
+        } catch {
+          throw new Error('Unexpected response from server.');
+        }
+        pollJobStatus(jobId);
+
+      } catch (error) {
+        showError(error.message);
+        resetButton();
+      }
+    });
+
+    async function pollJobStatus(jobId) {
+      if (pollInterval) {
+        clearInterval(pollInterval);
+      }
+
+      pollInterval = setInterval(async () => {
+        try {
+          const response = await fetch(`/api/jobs/${jobId}`);
+          if (!response.ok) {
+            throw new Error('Could not check generation progress');
+          }
+
+          const job = await response.json();
+          updateStatus(job);
+
+          if (job.status === 'succeeded' || job.status === 'failed') {
+            clearInterval(pollInterval);
+            stopStatusRotation();
+            resetButton();
+          }
+
+        } catch (error) {
+          console.error('Polling error:', error);
+          clearInterval(pollInterval);
+          stopStatusRotation();
+          showError('The score couldn\u2019t be completed this time.');
+          resetButton();
+        }
+      }, 1000);
+    }
+
+    function updateStatus(job) {
+      const { status, progress, error, outputs } = job;
+
+      if (progress !== undefined) {
+        progressFill.style.width = progress + '%';
+      }
+
+      switch (status) {
+        case 'queued':
+          statusTitle.innerHTML = '<span class="spinner"></span>Queued';
+          statusMessage.textContent = 'Waiting to begin\u2026';
+          break;
+
+        case 'running':
+          statusTitle.innerHTML = '<span class="spinner"></span>Writing score\u2026';
+          if (!statusRotationInterval) {
+            startStatusRotation();
+          }
+          break;
+
+        case 'succeeded':
+          statusTitle.innerHTML = '<span class="success">\u2713 Complete</span>';
+          statusMessage.textContent = '';
+          showOutputs(outputs);
+          break;
+
+        case 'failed':
+          statusTitle.textContent = '';
+          statusMessage.textContent = '';
+          showError('The score couldn\u2019t be completed this time.');
+          break;
+      }
+    }
+
+    function showOutputs(outputs) {
+      if (!outputs) return;
+
+      let html = '<div class="ready-line">Your prelude is ready.</div>';
+
+      // Audio Player (prioritize MP3, fallback to WAV)
+      if (outputs.mp3 || outputs.wav) {
+        const audioSrc = outputs.mp3 ? `/outputs/${outputs.mp3}` : `/outputs/${outputs.wav}`;
+
+        html += `
+          <div class="audio-player">
+            <div class="audio-player-title">
+              Steinway Grand Piano Playback
+              <span class="steinway-badge">STEINWAY</span>
+            </div>
+            <audio controls preload="metadata">
+              <source src="${audioSrc}" type="audio/${outputs.mp3 ? 'mpeg' : 'wav'}">
+              Your browser does not support audio playback.
+            </audio>
+          </div>
+        `;
+      }
+
+      // Download Section
+      html += '<div class="download-section"><div class="download-section-label">Downloads</div>';
+
+      if (outputs.pdf) {
+        html += `<a href="/outputs/${outputs.pdf}" class="output-link output-link-primary" target="_blank">PDF Score</a>`;
+      }
+
+      if (outputs.mp3) {
+        html += `<a href="/outputs/${outputs.mp3}" class="output-link" download>MP3 Audio</a>`;
+      }
+
+      if (outputs.wav) {
+        html += `<a href="/outputs/${outputs.wav}" class="output-link" download>WAV Audio</a>`;
+      }
+
+      if (outputs.midi) {
+        html += `<a href="/outputs/${outputs.midi}" class="output-link" download>MIDI File</a>`;
+      }
+
+      if (outputs.ly) {
+        html += `<a href="/outputs/${outputs.ly}" class="output-link" download>Source</a>`;
+      }
+
+      html += '</div>';
+
+      outputsDiv.innerHTML = html;
+    }
+
+    function showError(message) {
+      errorDiv.innerHTML = message + '<span class="error-retry">Try adjusting the description or generating again.</span>';
+      errorDiv.style.display = 'block';
+    }
+
+    function resetButton() {
+      generateBtn.disabled = false;
+      generateBtn.textContent = 'Compose prelude';
+    }
+  </script>
+</body>
+</html>
