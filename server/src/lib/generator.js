@@ -2016,9 +2016,7 @@ export async function generateWithRepair(params, progressCallback) {
         });
 
         try {
-          const audioOutputs = await renderAudio(midiPath, outputDir, {
-            generateMP3: true
-          });
+          const audioOutputs = await renderAudio(midiPath, outputDir);
 
           if (audioOutputs.wav) {
             outputs.wav = audioOutputs.wav;

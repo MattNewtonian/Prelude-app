@@ -881,10 +881,8 @@
 
       let html = '<div class="ready-line">Your prelude is ready.</div>';
 
-      // Audio Player (prioritize MP3, fallback to WAV)
-      if (outputs.mp3 || outputs.wav) {
-        const audioSrc = outputs.mp3 ? `/outputs/${outputs.mp3}` : `/outputs/${outputs.wav}`;
-
+      // Audio Player — WAV served directly (all modern browsers support it, no conversion needed)
+      if (outputs.wav) {
         html += `
           <div class="audio-player">
             <div class="audio-player-title">
@@ -892,7 +890,7 @@
               <span class="steinway-badge">STEINWAY</span>
             </div>
             <audio controls preload="metadata">
-              <source src="${audioSrc}" type="audio/${outputs.mp3 ? 'mpeg' : 'wav'}">
+              <source src="/outputs/${outputs.wav}" type="audio/wav">
               Your browser does not support audio playback.
             </audio>
           </div>
@@ -906,12 +904,8 @@
         html += `<a href="/outputs/${outputs.pdf}" class="output-link output-link-primary" target="_blank">PDF Score</a>`;
       }
 
-      if (outputs.mp3) {
-        html += `<a href="/outputs/${outputs.mp3}" class="output-link" download>MP3 Audio</a>`;
-      }
-
       if (outputs.wav) {
-        html += `<a href="/outputs/${outputs.wav}" class="output-link" download>WAV Audio</a>`;
+        html += `<a href="/outputs/${outputs.wav}" class="output-link" download>Audio (WAV)</a>`;
       }
 
       if (outputs.midi) {
