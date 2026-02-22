@@ -1047,7 +1047,8 @@ The music should feel indifferent to the listener, not accommodating.
 
 7. Default Bias Overrides (AI-specific)
 Actively resist: symmetry, balance, clear exposition, polite endings, even pacing.
-When in doubt: choose ambiguity over clarity, drift over direction, silence over explanation.
+When in doubt: choose ambiguity over clarity, drift over direction, texture over silence.
+Both hands must maintain presence throughout — silence in both hands simultaneously is not ambiguity, it is absence.
 
 --- END PHILOSOPHY ---`;
 
@@ -1078,9 +1079,10 @@ Music should feel discovered, not explained.
 - Do not resolve every phrase cleanly in time
 
 2.4 Fermatas are hesitation, not punctuation
-- Use soft fermatas on rests and sustained tones
-- Avoid placing fermatas only at cadences
+- Maximum 3 fermatas in the entire piece
+- Use fermatas on sustained tones or phrase-ending rests only — not mid-bar rests
 - Fermatas should feel like thought pausing, not arrival
+- Do NOT scatter fermatas across the piece as punctuation marks
 
 3. FLOW & CONTINUITY RULES
 3.1 Avoid grid-based pacing
@@ -1091,6 +1093,19 @@ Music should feel discovered, not explained.
 3.2 Density over pulse
 - Shape time through texture thickening and thinning
 - A section may feel "faster" without the tempo changing
+
+3.3 MINIMUM TEXTURE ENGAGEMENT (mandatory — prevents "start-and-stop" output)
+- At least one hand must be active (playing notes, not resting) at almost all times.
+- Both hands must NOT both rest simultaneously for more than 2 consecutive beats.
+- When the RH rests for a full bar, the LH must be moving beneath it.
+- When the LH rests, the RH must sustain or move.
+- A piece where both hands are frequently silent at the same time is WRONG.
+- The LH must provide some form of harmonic presence across the whole piece — not just scattered fragments.
+
+3.4 PHRASE FLOW (prevents stuttering/fragmented output)
+- Do NOT begin the majority of phrases with a rest. Rests at the start of phrases are fine occasionally, but if every bar starts with a rest (r4, r8, r2), the music will sound "start-and-stop" and incoherent.
+- At most 1 in 3 bars should begin with a rest in the right hand.
+- Tempo change markings should be used sparingly: maximum 3 tempo indications in the whole piece.
 
 4. MOTIF & MATERIAL RULES
 - Do not clearly present a motif at the beginning
@@ -1220,6 +1235,74 @@ function checkStaticPatterns(lilypondCode) {
         `Extremely low pitch variety: only ${allPitches.size} distinct pitch class(es) used across the whole piece ` +
         `(${[...allPitches].join(', ')}). Add more harmonic color — at least 5-6 distinct pitches are needed.`
       );
+    }
+
+    // ── Simultaneous-rest (sparse texture) check ──
+    if (lhMatch) {
+      const lhNorm = normalizeHand(lhMatch[1]);
+      const rhNorm = normalizeHand(rhMatch[1]);
+      const lhBars = lhNorm.split('|').map(b => b.trim()).filter(b => b.length > 0);
+      const rhBars = rhNorm.split('|').map(b => b.trim()).filter(b => b.length > 0);
+      const minBars = Math.min(lhBars.length, rhBars.length);
+
+      // A bar is "rest-heavy" if it contains no pitched notes or only a lone 8th note
+      function isRestHeavy(bar) {
+        const notes = (bar.match(/\b[a-g](?:is|es|isis|eses)?[\d,'"]/g) || []).length;
+        return notes === 0 || (notes <= 1 && /r2\b|r1\b/.test(bar));
+      }
+
+      let simultaneousRestBars = 0;
+      for (let i = 0; i < minBars; i++) {
+        if (isRestHeavy(lhBars[i]) && isRestHeavy(rhBars[i])) {
+          simultaneousRestBars++;
+        }
+      }
+
+      const ratio = simultaneousRestBars / minBars;
+      if (minBars >= 8 && ratio >= 0.30) {
+        issues.push(
+          `Sparse texture: both hands are simultaneously near-silent in ${simultaneousRestBars} of ${minBars} bars (${Math.round(ratio * 100)}%). ` +
+          `When RH rests, LH must provide harmonic motion — and vice versa. Rewrite so at least one hand is always active.`
+        );
+      }
+    }
+  }
+
+  // ── Fermata overuse check ──
+  const fermataCount = (noComments.match(/\\fermata/g) || []).length;
+  if (fermataCount > 4) {
+    issues.push(
+      `Fermata overuse: ${fermataCount} fermatas found. Maximum 3 per piece. ` +
+      `Remove fermatas from mid-phrase rests — keep only 1-2 significant pauses.`
+    );
+  }
+
+  // ── Tempo change overuse check ──
+  const tempoCount = (noComments.match(/\\tempo\s+"/g) || []).length;
+  // One \tempo is expected for the opening; anything beyond that is mid-piece changes
+  const midPieceTempos = Math.max(0, tempoCount - 1);
+  if (midPieceTempos > 3) {
+    issues.push(
+      `Tempo change overuse: ${midPieceTempos} mid-piece tempo changes found. Maximum 3 per piece. ` +
+      `Constant tempo shifts (rubato → poco allargando → tempo sospeso every few bars) fragment the music. ` +
+      `Consolidate to 1-2 expressive markings near phrase endings only.`
+    );
+  }
+
+  // ── RH phrase-starts-with-rest check (fragmented phrasing) ──
+  if (rhMatch) {
+    const rhNorm2 = normalizeHand(rhMatch[1]);
+    const rhBars2 = rhNorm2.split('|').map(b => b.trim()).filter(b => b.length > 0);
+    if (rhBars2.length >= 8) {
+      const restStartCount = rhBars2.filter(bar => /^r[1248]\b/.test(bar)).length;
+      const ratio = restStartCount / rhBars2.length;
+      if (ratio >= 0.50) {
+        issues.push(
+          `Fragmented phrasing: ${restStartCount} of ${rhBars2.length} right-hand bars begin with a rest (${Math.round(ratio * 100)}%). ` +
+          `This creates a "start-and-stop" effect. At most 1 in 3 bars should start with a rest. ` +
+          `Begin phrases on pitched notes and use rests mid-phrase or at phrase ends instead.`
+        );
+      }
     }
   }
 
