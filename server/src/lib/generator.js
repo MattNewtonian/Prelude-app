@@ -117,7 +117,8 @@ function buildProvenanceMarkup(params) {
     lines.push('\\vspace #0.3');
   }
 
-  lines.push('"Key: ' + escapeLy(key) + ' \u00B7 Bars: ' + bars + ' \u00B7 Difficulty: ' + diffLabel + '"');
+  const keyLabel = key || 'Composer\'s choice';
+  lines.push('"Key: ' + escapeLy(keyLabel) + ' \u00B7 Bars: ' + bars + ' \u00B7 Difficulty: ' + diffLabel + '"');
 
   if (styleName) {
     lines.push('"Style: ' + escapeLy(styleName) + '"');
@@ -1555,10 +1556,14 @@ This describes a way of thinking, not a sound to copy.`;
   }
 
   // Build user prompt
+  const keySpec = key
+    ? `- Key: ${key}`
+    : `- Key: Choose the most stylistically fitting key. Good defaults: jazz → Bb or Eb major; impressionist → Db or Ab major; baroque → D minor or G major; romantic → C# or F# minor; classical → G or D major; cinematic/minimal → A minor or D minor; default → D, F, or G major. State your choice clearly in the \\key command.`;
+
   let userPrompt = `MUSICAL PROBLEM:\n${composerIntent}
 
 SPECIFICATIONS:
-- Key: ${key}
+${keySpec}
 - Bars: ${bars}
 - Difficulty: ${difficulty}`;
 
@@ -1656,11 +1661,15 @@ function buildLilypondFromPlanPrompt(plan, params) {
   const { key, bars, difficulty } = params;
   const systemPrompt = getComposeSystemPrompt(params);
 
+  const keySpec = key
+    ? `- Key: ${key}`
+    : `- Key: Choose the most stylistically fitting key for this brief's character and style. Prefer keys that serve the music — jazz → Bb or Eb major; impressionist → Db or Ab major; baroque → D minor or G major; romantic → C# or F# minor; default → D, F, or G major. State your choice in the \\key command.`;
+
   const userPrompt = `COMPOSER BRIEF:
 ${JSON.stringify(plan)}
 
 SPECIFICATIONS:
-- Key: ${key}
+${keySpec}
 - Bars: ${bars}
 - Difficulty: ${difficulty}
 

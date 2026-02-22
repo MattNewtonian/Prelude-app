@@ -552,8 +552,8 @@
           <div class="form-row">
             <div class="form-group">
               <label for="key">Key Signature</label>
-              <select id="key" name="key" required>
-                <option value="">Select a key…</option>
+              <select id="key" name="key">
+                <option value="" selected>Auto (Prelude chooses)</option>
                 <option value="surprise">🎲 Surprise me</option>
                 <optgroup label="Major Keys">
                   <option value="C major">C Major</option>
@@ -752,7 +752,7 @@
       const selectedKey = document.getElementById('key').value;
       const resolvedKey = selectedKey === 'surprise'
         ? allKeys[Math.floor(Math.random() * allKeys.length)]
-        : selectedKey;
+        : selectedKey || undefined; // empty = auto (let Claude choose)
 
       const formData = {
         key: resolvedKey,
