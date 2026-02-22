@@ -39,6 +39,20 @@ export async function compileLilyPond(lyFilePath, outputDir) {
       console.log('[LilyPond stderr]:', stderr);
     }
 
+    // Detect barcheck warnings — LilyPond exits 0 but the bar has wrong beat count.
+    // Collect all occurrences so the repair prompt can name the exact bars.
+    const allOutput = (stdout || '') + (stderr || '');
+    const barcheckWarnings = [];
+    const barcheckRe = /([^\n]+):(\d+):\d+: warning: barcheck failed at: (\S+)/g;
+    let bcMatch;
+    while ((bcMatch = barcheckRe.exec(allOutput)) !== null) {
+      barcheckWarnings.push({
+        line: parseInt(bcMatch[2], 10),
+        position: bcMatch[3],   // e.g. "1/8" means 1 eighth note off
+        raw: bcMatch[0]
+      });
+    }
+
     // Check if output files were created
     const pdfPath = `${outputBasename}.pdf`;
     const midiPath = `${outputBasename}.midi`;
@@ -61,7 +75,8 @@ export async function compileLilyPond(lyFilePath, outputDir) {
 
     return {
       pdf: pdfPath,
-      midi: midiExists ? midiPath : null
+      midi: midiExists ? midiPath : null,
+      barcheckWarnings
     };
 
   } catch (error) {

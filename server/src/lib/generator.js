@@ -1331,6 +1331,27 @@ function checkStaticPatterns(lilypondCode) {
 }
 
 /**
+ * Throw if compileLilyPond returned barcheck warnings.
+ * Barcheck failures exit with code 0 but produce misaligned MIDI — treat as errors.
+ */
+function assertNoBarcheckFailures(outputs) {
+  const warnings = outputs.barcheckWarnings;
+  if (!warnings || warnings.length === 0) return;
+
+  const details = warnings.map(w =>
+    `Line ${w.line}: barcheck failed at position ${w.position} ` +
+    `(bar has the wrong number of beats — off by ${w.position} in 4/4 time)`
+  ).join('\n');
+
+  throw new Error(
+    `LilyPond barcheck failure — one or more bars have the wrong beat count:\n${details}\n\n` +
+    `To fix: count the note and rest durations in the flagged bar(s). ` +
+    `In 4/4 time every bar must total exactly 4 beats (16 sixteenth notes). ` +
+    `Add or remove a rest/note to correct the total.`
+  );
+}
+
+/**
  * Post-generation validation: time signatures and pickup measures.
  * Returns { valid, warnings } — warnings are logged but don't block output.
  */
@@ -1862,6 +1883,7 @@ export async function generateWithRepair(params, progressCallback) {
 
       // Try to compile
       let outputs = await compileLilyPond(lyPath, outputDir);
+      assertNoBarcheckFailures(outputs); // barcheck warnings = wrong beat count → repair
 
       // OPTIONAL REFINE PASS: Improve musicality with lightweight model
       if (refine) {
@@ -1883,6 +1905,7 @@ export async function generateWithRepair(params, progressCallback) {
 
           // Recompile with refined code
           const refinedOutputs = await compileLilyPond(lyPath, outputDir);
+          assertNoBarcheckFailures(refinedOutputs);
 
           // Use refined outputs
           outputs = refinedOutputs;
@@ -1943,6 +1966,7 @@ export async function generateWithRepair(params, progressCallback) {
           // Write and recompile
           await writeLilyPondFile(injectProvenance(fixedCode, provenanceMarkup), lyPath);
           const fixedOutputs = await compileLilyPond(lyPath, outputDir);
+          assertNoBarcheckFailures(fixedOutputs);
 
           outputs = fixedOutputs;
           code = fixedCode;
