@@ -573,20 +573,26 @@ Role: You are composing music that grooves, swings, and breathes with rhythmic l
 
 2. HARMONY IS FUNCTIONAL AND RICH
 - Use ii-V-I progressions as the structural backbone.
+- The piece must move through at least 4 distinct chords — NOT stay diatonic to one key.
 - Include at least one 7th chord, one 9th or 11th extension, and one chromatic approach chord.
 - Avoid purely diatonic progressions — they sound classical, not jazz.
 
-3. LEFT HAND = GROOVE ENGINE
-- Left hand provides rhythmic grounding: walking bass, stride, or locked-hands texture.
-- Walking bass: one note per beat, stepwise or via chord tones, covering 1-2 octaves.
+3. MELODY USES JAZZ VOCABULARY
+- Plan for blue notes: b3, b7, or b5 relative to the home key — these are mandatory colour notes.
+- Melody outlines chord tones (3rd, 5th, 7th) rather than running up/down the major scale.
+- Chromatic approach notes before landing on chord tones.
+
+4. LEFT HAND = GROOVE ENGINE
+- Left hand provides rhythmic grounding: walking bass or stride.
+- Walking bass: one note per beat, outlining ROOT MOVEMENT through chord changes (NOT just walking up/down one scale).
 - Stride: bass note on beat 1+3, chord on beat 2+4.
 - Do NOT write flowing arpeggios or scale runs in the left hand.
 
-4. TEMPO IS STEADY
+5. TEMPO IS STEADY
 - Jazz has a pulse. Do NOT use rubato, fermatas, or tempo fluctuations.
 - Use a clear swing or groove marking (e.g., "With swing", "Funky", "Bright swing").
 
-5. AVOID CLASSICAL HABITS
+6. AVOID CLASSICAL HABITS
 - No flowing 16th-note scalar lines in the right hand
 - No "senza rigidità", "quasi fermata", "tempo sospeso" markings
 - No extremely low bass register (stay above C,, in the left hand)
@@ -603,38 +609,49 @@ Role: You are writing a jazz-flavored piano piece that grooves and swings — no
 - Every phrase should have at least one off-beat accent or anticipation.
 - Avoid straight quarter-note or eighth-note melody lines entirely.
 
-2. LEFT HAND = GROOVE (mandatory)
-- Use walking bass OR stride. Choose one and commit to it.
-- WALKING BASS: single notes only (NOT chords, NOT arpeggios) — one note per beat, moving stepwise or via chord tones through the register. Example: fis4 gis4 a4 b4 | cis'4 b4 a4 gis4. The bass moves — it does NOT arpeggiate the same chord up and down.
-- STRIDE: bass note on beats 1+3, left-hand voicing (3-note chord) on beats 2+4. Example: fis,4 <a cis'>4 fis,4 <a cis'>4.
-- DO NOT write fis4 a4 cis'4 a4 — that is a broken chord arpeggio (boogie bass), not walking or stride.
+2. LEFT HAND = WALKING BASS THROUGH CHORD CHANGES (mandatory)
+- Walking bass: one note per beat, outlining the ROOT MOVEMENT of chord changes — NOT just walking up and down one scale.
+- The bass must imply real chord changes. Example of a ii-V-I in G:
+    a,4 b, c d | g, a, b, c | g,4 fis, g, a, (Am7 → D7 → Gmaj)
+- Contrast: "e fis gis a / b a gis fis / e fis gis a" is WRONG — that is just an E major scale, not a walking bass implying chord changes.
+- Each 2–4 bars should imply a different chord (e.g. Am7, D7, Gmaj7, Em7, Bm7).
+- STRIDE alternative: bass note on beats 1+3, 3-note voicing on beats 2+4.
+- DO NOT write broken chord arpeggios (fis4 a4 cis'4 a4 = wrong).
 - Walking bass stays in the range C, to c' — no extreme low notes.
-- Do NOT write scale runs or flowing 16th notes in the left hand.
 
-3. HARMONY
+3. MELODY MUST USE JAZZ VOCABULARY (mandatory)
+- Include blue notes: the flatted 3rd (b3), flatted 7th (b7), or flatted 5th (b5) of the key.
+- Use chromatic approach notes: half-step above or below chord tones before landing.
+- The melody should outline chord tones (3rd, 5th, 7th of each chord), NOT just run up and down the major scale.
+- If the key is E major: use g natural (b3), d natural (b7), bes (b5) as colour notes.
+- WRONG: a purely diatonic melody that only uses notes of the home key. That sounds classical, not jazz.
+
+4. HARMONY — CHORD CHANGES ARE MANDATORY
 - ii-V-I is your structural backbone. Use it at least twice per section.
 - Include: at least two dominant 7th chords, one chord with 9th or 11th extension.
+- The piece must move through at least 4 distinct chords — NOT stay on one tonic.
 - Use chromatic approach notes (half-step above or below chord tones).
 - One tritone substitution is encouraged.
 
-4. TEMPO AND FEEL
+5. TEMPO AND FEEL
 - Use a steady, clear tempo marking: "With swing", "Funky", "With groove", "Bright swing", "Laid-back".
 - Do NOT use: rubato, senza rigidità, quasi fermata, tempo sospeso, poco allargando, or any fermata.
 - The pulse must be unwavering throughout.
 
-5. ARTICULATION
+6. ARTICULATION
 - Use staccato (.) on off-beat notes to imply swing.
 - Accents (>) on syncopated arrivals.
 - Keep dynamics lively: mp to f range with clear contrast.
 
-6. FORBIDDEN IN JAZZ MODE
+7. FORBIDDEN IN JAZZ MODE
+- Purely diatonic melody (no blue notes = not jazz)
+- Walking bass that never leaves the home key (= scale exercise, not jazz)
 - Flowing scalar 16th-note lines in either hand
-- Classical voice-leading (no parallel motion rules — jazz uses parallel anything)
-- Extreme low register in left hand (below C,)
 - Fermatas or tempo changes
 - Imitative counterpoint
+- Extreme low register in left hand (below C,)
 
-ANCHOR: The piece must make you want to tap your foot. If it sounds like Bach or Chopin, it is wrong.
+ANCHOR: The piece must make you want to tap your foot AND have blue notes that give it that jazzy ache. If it sounds like Bach or a major-scale exercise, it is wrong.
 
 --- END JAZZ INSTRUCTIONS ---`;
 
