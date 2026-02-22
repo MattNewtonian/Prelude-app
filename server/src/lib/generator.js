@@ -389,7 +389,14 @@ leftHand = {
   >>
   \\layout { }
   \\midi {
-    \\tempo 4 = 72
+    \\tempo 4 = ${
+      modeFlags.jazz ? 116
+      : modeFlags.classical ? 104
+      : modeFlags.minimal ? 80
+      : modeFlags.cinematic ? 80
+      : modeFlags.impressionist ? 66
+      : 76
+    }
   }
 }
 
@@ -406,7 +413,7 @@ SUSTAIN PEDAL (mandatory for natural piano sound):
 - For impressionist/romantic styles: change pedal every 1-2 bars, sometimes half-pedal (\\sustainOff\\sustainOn quickly).
 - For baroque: DO NOT add sustain pedal (harpsichord has no sustain).
 - For minimal style: hold pedal for 4+ bars between changes.
-- For jazz: use pedal sparingly, only on whole notes or held chords.
+- For jazz: NO sustain pedal on moving quarter-note or eighth-note bass lines — it blurs the groove. Only add \sustainOn to whole notes or explicitly held chords (half note or longer). Most jazz bars should have NO pedal at all.
 - The final note or chord in the piece must have \\sustainOff on the last note before \\barNumberCheck.
 - Without sustain pedal, piano MIDI will sound choppy and artificial.
 
@@ -597,10 +604,12 @@ Role: You are writing a jazz-flavored piano piece that grooves and swings — no
 - Avoid straight quarter-note or eighth-note melody lines entirely.
 
 2. LEFT HAND = GROOVE (mandatory)
-- Use walking bass (one note per beat, stepwise/chord-tone motion) OR stride (bass + chord alternation).
+- Use walking bass OR stride. Choose one and commit to it.
+- WALKING BASS: single notes only (NOT chords, NOT arpeggios) — one note per beat, moving stepwise or via chord tones through the register. Example: fis4 gis4 a4 b4 | cis'4 b4 a4 gis4. The bass moves — it does NOT arpeggiate the same chord up and down.
+- STRIDE: bass note on beats 1+3, left-hand voicing (3-note chord) on beats 2+4. Example: fis,4 <a cis'>4 fis,4 <a cis'>4.
+- DO NOT write fis4 a4 cis'4 a4 — that is a broken chord arpeggio (boogie bass), not walking or stride.
 - Walking bass stays in the range C, to c' — no extreme low notes.
-- Stride: bass note beats 1+3, voicing beats 2+4.
-- Do NOT write scale runs, arpeggios, or flowing 16th notes in the left hand.
+- Do NOT write scale runs or flowing 16th notes in the left hand.
 
 3. HARMONY
 - ii-V-I is your structural backbone. Use it at least twice per section.
