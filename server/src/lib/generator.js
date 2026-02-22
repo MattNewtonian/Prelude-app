@@ -417,6 +417,14 @@ SUSTAIN PEDAL (mandatory for natural piano sound):
 - The final note or chord in the piece must have \\sustainOff on the last note before \\barNumberCheck.
 - Without sustain pedal, piano MIDI will sound choppy and artificial.
 
+REGISTER LIMITS (hard limits — violating these produces unplayable or ugly engraving):
+- LEFT HAND lowest note: c,  (C2) — never write c,, or lower. Notes like g,,,, f,,,, bes,,, etc. are BELOW the piano keyboard and are FORBIDDEN.
+- RIGHT HAND in treble clef lowest note: c' (middle C, C4) — do not write notes below c' in the right hand unless briefly passing; never go below f (F3).
+- RIGHT HAND in bass clef (if ever used): same floor as left hand — c, (C2).
+- These limits prevent excessive ledger lines and sub-piano-range notes.
+- Examples of FORBIDDEN notes: c,,,  g,,,  f,,,  bes,,,  d,,  (anything with 3+ commas, or 2 commas below G)
+- If a passage needs to be low, raise it by one octave rather than crossing the floor.
+
 SYNTAX RULES:
 - Articulations come AFTER duration: c'4-> (correct), c'->4 (wrong)
 - Use articulations SPARINGLY (max 2-3 per phrase)
@@ -1324,6 +1332,28 @@ function checkStaticPatterns(lilypondCode) {
       `Tempo change overuse: ${midPieceTempos} mid-piece tempo changes found. Maximum 3 per piece. ` +
       `Constant tempo shifts (rubato → poco allargando → tempo sospeso every few bars) fragment the music. ` +
       `Consolidate to 1-2 expressive markings near phrase endings only.`
+    );
+  }
+
+  // ── Sub-floor register check (notes below piano range or below ledger-line threshold) ──
+  // LH floor: c, (C2) — anything with 3+ commas is below the piano keyboard
+  // RH floor: f (F3) — anything below c' (middle C) in treble clef is excessive ledger lines
+  const subFloorLH = (noComments.match(/[a-g](?:is|es|isis|eses)?,,,[,'"]*/g) || []);
+  if (subFloorLH.length > 0) {
+    issues.push(
+      `Register too low: left hand has ${subFloorLH.length} note(s) below C2 (e.g. ${subFloorLH.slice(0,3).join(', ')}). ` +
+      `These are below or at the limit of the piano keyboard and produce excessive ledger lines. ` +
+      `Raise all left-hand notes with 3+ commas up by one octave.`
+    );
+  }
+  // RH notes below F3 (f without any apostrophe, or with commas) in treble clef
+  const subFloorRH = rhMatch
+    ? (noComments.match(/\b[a-g](?:is|es|isis|eses)?(?:,+)[^']/g) || [])
+    : [];
+  if (subFloorRH.length > 2) {
+    issues.push(
+      `Right hand too low: ${subFloorRH.length} note(s) below C3 in treble clef (e.g. ${subFloorRH.slice(0,3).join(', ')}). ` +
+      `Notes below middle C (c') in treble clef create many ledger lines. Raise these passages by an octave.`
     );
   }
 
