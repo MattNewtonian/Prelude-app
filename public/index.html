@@ -711,6 +711,7 @@
     const errorDiv = document.getElementById('error');
 
     let pollInterval = null;
+    let pollTimeout = null;
     let statusRotationInterval = null;
 
     // Rotating status messages during generation
@@ -812,9 +813,26 @@
     });
 
     async function pollJobStatus(jobId) {
-      if (pollInterval) {
+      if (pollInterval) clearInterval(pollInterval);
+      if (pollTimeout) clearTimeout(pollTimeout);
+
+      let consecutiveErrors = 0;
+      const MAX_CONSECUTIVE_ERRORS = 5; // tolerate brief network blips
+
+      function stopPolling(errorMsg) {
         clearInterval(pollInterval);
+        if (pollTimeout) clearTimeout(pollTimeout);
+        stopStatusRotation();
+        if (errorMsg) {
+          showError(errorMsg);
+        }
+        resetButton();
       }
+
+      // Hard stop after 5 minutes — something is very wrong if it takes longer
+      pollTimeout = setTimeout(() => {
+        stopPolling('The score couldn\u2019t be completed this time.');
+      }, 5 * 60 * 1000);
 
       pollInterval = setInterval(async () => {
         try {
@@ -824,20 +842,21 @@
           }
 
           const job = await response.json();
+          consecutiveErrors = 0; // reset on success
           updateStatus(job);
 
           if (job.status === 'succeeded' || job.status === 'failed') {
-            clearInterval(pollInterval);
-            stopStatusRotation();
-            resetButton();
+            stopPolling(null);
           }
 
         } catch (error) {
-          console.error('Polling error:', error);
-          clearInterval(pollInterval);
-          stopStatusRotation();
-          showError('The score couldn\u2019t be completed this time.');
-          resetButton();
+          consecutiveErrors++;
+          console.error(`Polling error (${consecutiveErrors}/${MAX_CONSECUTIVE_ERRORS}):`, error);
+
+          if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
+            stopPolling('The score couldn\u2019t be completed this time.');
+          }
+          // else: silently retry next tick
         }
       }, 1000);
     }
