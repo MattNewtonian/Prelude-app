@@ -362,7 +362,7 @@ leftHand = {
   \\clef bass
   \\key [key] \\[mode]
   \\time 4/4
-  % left hand music — independent voice, not accompaniment
+  % left hand music — add \\sustainOn/\\sustainOff pedal on notes (e.g. c4\\sustainOn e g e\\sustainOff)
   % ... music ...
   \\barNumberCheck #${bars + 1}
 }
@@ -398,6 +398,18 @@ BAR COUNT ENFORCEMENT:
 - Place \\barNumberCheck #${bars + 1} as the LAST item before the closing brace in BOTH rightHand and leftHand
 - If LilyPond warns about a bar number mismatch, fix the measure count — do NOT remove \\barNumberCheck
 
+SUSTAIN PEDAL (mandatory for natural piano sound):
+- Add sustain pedal to the LEFT HAND only — attach \\sustainOn and \\sustainOff directly to notes.
+- Syntax: place \\sustainOn immediately after a note's duration, before the next note. Example:
+    c4\\sustainOn e g e\\sustainOff | f4\\sustainOn a c a\\sustainOff |
+- Change pedal at each harmonic change (typically once per bar or every 2 bars).
+- For impressionist/romantic styles: change pedal every 1-2 bars, sometimes half-pedal (\\sustainOff\\sustainOn quickly).
+- For baroque: DO NOT add sustain pedal (harpsichord has no sustain).
+- For minimal style: hold pedal for 4+ bars between changes.
+- For jazz: use pedal sparingly, only on whole notes or held chords.
+- The final note or chord in the piece must have \\sustainOff on the last note before \\barNumberCheck.
+- Without sustain pedal, piano MIDI will sound choppy and artificial.
+
 SYNTAX RULES:
 - Articulations come AFTER duration: c'4-> (correct), c'->4 (wrong)
 - Use articulations SPARINGLY (max 2-3 per phrase)
@@ -410,7 +422,7 @@ SYNTAX RULES:
 - Avoid dense pitch clusters and repeated multi-note piles; default to single-note lines or two-note intervals
 - Large leaps (> octave) should be occasional, not continuous texture
 - All braces must be balanced
-- Use \\fermata on notes/rests for hesitation points — not only at cadences
+- Use \\fermata very sparingly: maximum 2-3 per piece total, only at significant phrase endings
 - Do NOT change \\time mid-piece unless explicitly requested
 - If using \\partial for pickup, BOTH hands must share the same pickup structure`;
 }

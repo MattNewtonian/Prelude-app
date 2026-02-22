@@ -19,10 +19,10 @@ const execAsync = promisify(exec);
  */
 export async function renderAudio(midiPath, outputDir, options = {}) {
   const {
-    soundfont = process.env.SOUNDFONT_PATH || '/usr/share/soundfonts/default.sf2',
-    sampleRate = 44100,
+    soundfont = process.env.SOUNDFONT_PATH || '/usr/share/sounds/sf2/FluidR3_GM.sf2',
+    sampleRate = 48000,
     generateMP3 = true,
-    mp3Quality = 2 // VBR quality 2 (high quality)
+    mp3Quality = 1 // VBR quality 1 (very high quality)
   } = options;
 
   const basename = path.basename(midiPath, '.midi');
@@ -47,7 +47,27 @@ export async function renderAudio(midiPath, outputDir, options = {}) {
     // Render MIDI to WAV using FluidSynth
     console.log(`[AudioRenderer] Rendering ${basename}.midi to WAV with Steinway soundfont...`);
 
-    const fluidSynthCommand = `fluidsynth -ni "${soundfont}" "${midiPath}" -F "${wavPath}" -r ${sampleRate}`;
+    // Piano-optimized FluidSynth settings:
+    // - gain 0.8: louder than the default 0.2 (avoids noise floor issues after normalization)
+    // - reverb room-size 0.6: medium concert hall acoustics
+    // - reverb damp 0.4: partial high-frequency damping (natural piano decay)
+    // - reverb width 0.8: wide stereo field
+    // - reverb level 0.35: noticeable but not overwhelming reverb
+    // - chorus off: chorus muddies piano timbre
+    const fluidSynthCommand = [
+      'fluidsynth', '-ni',
+      `-g 0.8`,
+      `-o synth.reverb.active=yes`,
+      `-o synth.reverb.room-size=0.6`,
+      `-o synth.reverb.damp=0.4`,
+      `-o synth.reverb.width=0.8`,
+      `-o synth.reverb.level=0.35`,
+      `-o synth.chorus.active=no`,
+      `"${soundfont}"`,
+      `"${midiPath}"`,
+      `-F "${wavPath}"`,
+      `-r ${sampleRate}`
+    ].join(' ');
 
     const { stdout, stderr } = await execAsync(fluidSynthCommand, {
       timeout: 60000, // 60 second timeout
@@ -78,7 +98,11 @@ export async function renderAudio(midiPath, outputDir, options = {}) {
 
         console.log(`[AudioRenderer] Converting WAV to MP3...`);
 
-        const ffmpegCommand = `ffmpeg -i "${wavPath}" -codec:a libmp3lame -qscale:a ${mp3Quality} "${mp3Path}" -y`;
+        // Normalize loudness to -16 LUFS (streaming standard) and add gentle EQ:
+        // - loudnorm: consistent perceived loudness across all pieces
+        // - highpass at 30Hz: remove sub-bass rumble from synthesis artifacts
+        // - VBR quality 1: ~220 kbps (higher than default q=2)
+        const ffmpegCommand = `ffmpeg -i "${wavPath}" -af "highpass=f=30,loudnorm=I=-16:TP=-1.5:LRA=11" -codec:a libmp3lame -qscale:a ${mp3Quality} "${mp3Path}" -y`;
 
         const { stdout: ffmpegStdout, stderr: ffmpegStderr } = await execAsync(ffmpegCommand, {
           timeout: 60000,

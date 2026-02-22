@@ -8,6 +8,9 @@ RUN apt-get update && apt-get install -y \
     fluid-soundfont-gm \
     && rm -rf /var/lib/apt/lists/*
 
+# Set soundfont path — fluid-soundfont-gm installs FluidR3_GM.sf2 here on Debian
+ENV SOUNDFONT_PATH=/usr/share/sounds/sf2/FluidR3_GM.sf2
+
 WORKDIR /app
 
 # Install Node dependencies
