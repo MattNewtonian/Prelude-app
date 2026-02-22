@@ -4,6 +4,8 @@ A production-ready Node.js/Express application that generates **composer-quality
 
 **Philosophy:** Silence, limitation, and recurrence are GOOD. The goal is musical pieces a human pianist could remember, shape, and care about.
 
+Try it out here! [https://prelude-app-beta.netlify.app/] (https://prelude-app-beta.netlify.app/)
+
 ## Features
 
 ### Composer System
