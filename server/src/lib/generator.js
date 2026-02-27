@@ -909,26 +909,34 @@ Role: You are composing in the style of Philip Glass or ambient minimalism — m
 - The cell uses 3-5 pitches. It repeats with minimal variation.
 - The ostinato IS the piece — it should feel hypnotic, not busy.
 
-2. OTHER HAND = SLOW MELODY
-- The other hand (usually RH) adds sparse, slow melodic notes above.
-- At least one new pitch every 4 bars.
-- Long tones, not scalar lines or ornamental figures.
+2. OTHER HAND = CONTINUOUS SLOW MELODY
+- The other hand (usually RH) plays a continuous, connected melodic line above the ostinato.
+- Long note values (half notes, dotted halves, whole notes) — NO isolated single notes surrounded by rests.
+- The RH melody must be present in every bar or nearly every bar. Rests are brief pauses mid-phrase, not 3-bar silences.
+- The melody forms a clear arc: it rises gradually, reaches a high point, then descends and resolves.
 
-3. HARMONY CHANGES SLOWLY
+3. STRUCTURAL ARC (mandatory even in minimal style)
+- Bars 1–4: LH ostinato alone (intro). RH silent.
+- Bars 5 onward: RH melody enters and stays active, drifting slowly upward.
+- Middle section: LH shifts harmony (swap one pitch, e.g. D→E in bass) to add tension.
+- Later: brief modal or harmonic colour change at the emotional peak.
+- Final bars: return to opening harmony, RH settles on tonic, dynamics fade.
+
+4. HARMONY CHANGES SLOWLY
 - One chord change every 6-8 bars minimum. No rapid harmonic rhythm.
 - No sudden modulations. Harmony should drift, not pivot.
 - Avoid functional I-IV-V-I. Modal or drone-like harmonic language.
 
-4. PULSE IS UNWAVERING
+5. PULSE IS UNWAVERING
 - Minimal music has a clear, steady pulse — like a clock.
 - No rubato, no fermatas, no tempo changes (except a final slowing at the very end).
 - The pulse is what makes the gradual change audible.
 
-5. AVOID
-- Dramatic climax or sudden forte
-- Dense, busy textures
-- Rapid harmonic rhythm
-- Scalar runs or melodic development
+6. AVOID
+- Dramatic climax or sudden ff/fff
+- Dense, busy textures or rapid ornamental figuration
+- Rapid harmonic rhythm (chord changes every 1-2 bars)
+- Long stretches of RH silence (3+ consecutive RH rest bars are forbidden)
 
 --- END MINIMAL PHILOSOPHY ---`;
 
@@ -942,40 +950,50 @@ Role: You are writing a minimalist piano piece in the style of Philip Glass — 
 - Variation should be minimal: slight register shift, one pitch swapped — not a new pattern.
 - The LH ostinato must never stop for more than 1 bar.
 
-2. RIGHT HAND = SPARSE SLOW MELODY (mandatory)
-- RH adds slow, widely-spaced melodic notes above the LH ostinato.
-- Long note values: half notes, dotted half notes, whole notes.
-- At least one new RH pitch every 4 bars. No rapid melodic figuration.
-- The RH melody drifts slowly — it does NOT develop, vary rhythmically, or ornament.
+2. RIGHT HAND = CONTINUOUS SLOW MELODY (mandatory — read carefully)
+- RH plays a CONTINUOUS connected melodic line above the LH ostinato.
+- Long note values: half notes, dotted half notes, whole notes — NO quarter-note runs.
+- The RH must be active in nearly every bar. A single whole-note rest bar is fine between phrases; THREE OR MORE consecutive RH rest bars are FORBIDDEN.
+- Do NOT write isolated single notes surrounded by 2-3 bars of silence. That is not a melody — it is a list of pitches.
+- Instead: write connected 4-bar phrases. End one phrase with a whole note, begin the next phrase immediately.
 
-3. TOGETHER: 5+ PITCH CLASSES (mandatory)
+3. STRUCTURAL ARC (mandatory — this is what gives the piece narrative)
+- Bars 1–4: RH silent. LH ostinato alone establishes the pattern and key. Dynamics: pp.
+- Bars 5–8: RH melody enters (mp). Opening phrase: arc from the 5th/3rd of the tonic chord down to the tonic. 4 bars, mostly half notes.
+- Bars 9–12: RH melody continues higher (same mp or slight cresc.). Reach up toward the 6th or 7th of the key. End unresolved (not on the tonic).
+- Bars 13–16: Build-up. LH shifts bass note by a step (e.g. D→E) creating a vi or ii colour. RH uses quarter notes for the first time — a 4-note ascending or descending figure per bar. Dynamics: mf. Crescendo hairpin (\<) across bars 15–16 ending at \f.
+- Bars 17–20: Refrain / modal peak. LH shifts to a flat/modal colour (e.g. swap A→Ab, B→Bb). RH plays a falling phrase from the peak note down to the tonic using the modal pitches. Dynamics: f, then settling.
+- Bars 21–24: Resolution. LH returns to opening ostinato. RH rises briefly then settles on the tonic whole note. Dynamics: mp → p → pp. Final bar: tonic whole note pp.
+
+4. TOGETHER: 5+ PITCH CLASSES (mandatory)
 - Both hands combined must use at least 5 distinct pitch classes.
 - Do not restrict the whole piece to 2-3 pitches.
 
-4. HARMONY CHANGES SLOWLY
-- Change the underlying harmony (implied by LH pitches) no more than once every 6-8 bars.
+5. HARMONY CHANGES SLOWLY
+- Change the underlying harmony (implied by LH pitches) no more than twice across the whole piece.
 - No sudden modulations. No functional cadences.
 - Let the harmony shift almost imperceptibly — the listener should notice it has changed, not when.
 
-5. PULSE IS STEADY AND UNWAVERING
-- Use a clear, moderate tempo: Andante, Moderato, or a numeric tempo like ♩= 80.
+6. PULSE IS STEADY AND UNWAVERING
+- Use a clear, moderate tempo: Andante, Moderato, or a numeric tempo like ♩= 76–84.
 - NO rubato, NO fermatas, NO tempo changes mid-piece.
 - The steady pulse makes the gradual drift audible. Without it, minimal music collapses.
 
-6. ARC: GRADUAL AND SUBTLE
-- No dramatic climax. No sudden forte or texture explosion.
-- The piece may gradually thicken (add one voice, shift register upward) and then thin again.
-- The ending may slow very slightly (poco ritardando) but should not announce itself.
+7. DYNAMICS SHAPE THE ARC
+- pp (intro, LH alone) → mp (melody enters) → mf (build-up) → f (modal peak) → mp → pp (resolution).
+- Mark dynamics explicitly at each section change. Use a crescendo hairpin in the build-up.
+- Never stay at one dynamic level for more than 8 bars.
 
-7. FORBIDDEN IN MINIMAL MODE
+8. FORBIDDEN IN MINIMAL MODE
+- Long RH silence: 3+ consecutive bars where RH has only rests (R1 or r1) — FORBIDDEN
+- Isolated single whole notes every 4 bars with rests in between — FORBIDDEN
 - Dramatic dynamic surges (sudden ff or fff)
 - Rapid harmonic rhythm (chord changes every 1-2 bars)
-- Scalar runs or melodic development in either hand
+- Ornamental runs, trills, or rapid scalar figuration
 - Rubato, senza rigidità, or expressive tempo markings
-- Both hands playing completely different, unrelated material
 - Fermatas before the final note
 
-ANCHOR: The piece should feel like watching a slow tide — the water moves, but the change is almost imperceptible. If it sounds like jazz or classical, it is wrong.
+ANCHOR: The piece should feel like watching a slow tide — continuous water movement with subtle, gradual change. If the RH is mostly silence punctuated by occasional lone whole notes, it is wrong. If it sounds like jazz or classical, it is wrong.
 
 --- END MINIMAL INSTRUCTIONS ---`;
 
@@ -1192,9 +1210,16 @@ You are not demonstrating music. You are letting music happen and stopping befor
 /**
  * Deterministic post-check: detect static LH patterns and harmonic stasis.
  * Returns an array of issue descriptions, or empty array if clean.
+ * @param {string} lilypondCode
+ * @param {object} [modeFlags] - optional mode flags (e.g. { minimal: true }) to adjust thresholds
  */
-function checkStaticPatterns(lilypondCode) {
+function checkStaticPatterns(lilypondCode, modeFlags = {}) {
   const issues = [];
+  // Minimal mode uses an intentional repeating ostinato — allow up to 8 consecutive identical
+  // LH bars before flagging (vs 3 for other modes). Harmonic stasis threshold also relaxed.
+  const isMinimal = !!modeFlags.minimal;
+  const lhIdenticalThreshold = isMinimal ? 8 : 3;
+  const harmonicStasisThreshold = isMinimal ? 8 : 4;
 
   const noComments = lilypondCode.replace(/%[^\n]*/g, '');
 
@@ -1218,12 +1243,12 @@ function checkStaticPatterns(lilypondCode) {
     const lhBars = lhNorm.split('|').map(b => b.trim()).filter(b => b.length > 0);
 
     if (lhBars.length >= 3) {
-      // 3+ consecutive identical bars
+      // N+ consecutive identical bars (threshold relaxed for minimal mode)
       let consecutiveIdentical = 1;
       for (let i = 1; i < lhBars.length; i++) {
         if (lhBars[i] === lhBars[i - 1]) {
           consecutiveIdentical++;
-          if (consecutiveIdentical >= 3) {
+          if (consecutiveIdentical >= lhIdenticalThreshold) {
             issues.push(`Static left hand: bars ${i - 1}-${i + 1} are identical ("${lhBars[i].substring(0, 40)}...")`);
             break;
           }
@@ -1232,7 +1257,7 @@ function checkStaticPatterns(lilypondCode) {
         }
       }
 
-      // Same pitch classes across 4+ consecutive bars
+      // Same pitch classes across N+ consecutive bars (threshold relaxed for minimal mode)
       const lhBarPitches = lhBars.map(bar => {
         const pitches = bar.match(/[a-g](?:is|es|isis|eses)?/g);
         return pitches ? [...new Set(pitches)].sort().join(',') : '';
@@ -1241,7 +1266,7 @@ function checkStaticPatterns(lilypondCode) {
       for (let i = 1; i < lhBarPitches.length; i++) {
         if (lhBarPitches[i] && lhBarPitches[i] === lhBarPitches[i - 1]) {
           consecutiveSame++;
-          if (consecutiveSame >= 4) {
+          if (consecutiveSame >= harmonicStasisThreshold) {
             issues.push(`Harmonic stasis: left hand uses identical pitch classes for ${consecutiveSame} consecutive bars around bar ${i + 1}`);
             break;
           }
@@ -1363,7 +1388,8 @@ function checkStaticPatterns(lilypondCode) {
     const rhNorm2 = normalizeHand(rhMatch[1]);
     const rhBars2 = rhNorm2.split('|').map(b => b.trim()).filter(b => b.length > 0);
     if (rhBars2.length >= 8) {
-      const restStartCount = rhBars2.filter(bar => /^r[1248]\b/.test(bar)).length;
+      // Match both lowercase r (single rest) and uppercase R (multi-measure rest, e.g. R1*4)
+      const restStartCount = rhBars2.filter(bar => /^[Rr][1248*]\b/.test(bar)).length;
       const ratio = restStartCount / rhBars2.length;
       if (ratio >= 0.50) {
         issues.push(
@@ -1976,7 +2002,7 @@ export async function generateWithRepair(params, progressCallback) {
       }
 
       // POST-CHECK: Detect static patterns and trigger single regen if needed
-      const staticIssues = checkStaticPatterns(code);
+      const staticIssues = checkStaticPatterns(code, modeFlags);
       if (staticIssues.length > 0 && regenLog.length === 0) {
         // Only attempt one static-pattern regen per job
         regenLog.push({
